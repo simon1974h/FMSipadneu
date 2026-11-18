@@ -1,13 +1,13 @@
-# CAFM für iPad
+# FMS für iPad
 
 Liegenschaften und Begehung, Aufträge mit Abzeichnen, Wartung & Prüfungen, Anlagen, Leitern & Tritte mit Prüfprotokollen, Schlüssel, Termine, Berichte, Historie und PDF-Export. Läuft nach der Einrichtung vollständig offline. Die 33 Liegenschaften sind bereits angelegt.
 
 ## Auf GitHub Pages veröffentlichen
 
-1. Auf github.com ein neues Repository anlegen, z. B. `cafm` (Public).
+1. Auf github.com ein neues Repository anlegen, z. B. `fms` (Public).
 2. „uploading an existing file“ → alle Dateien aus diesem Ordner hineinziehen → „Commit changes“.
 3. Settings → Pages → Branch `main`, Ordner `/ (root)` → Save.
-4. Nach 1–2 Minuten ist die App unter `https://DEINNAME.github.io/cafm/` erreichbar.
+4. Nach 1–2 Minuten ist die App unter `https://DEINNAME.github.io/fms/` erreichbar.
 
 Die Programmdateien sind unter dieser Adresse öffentlich abrufbar. Deine eingegebenen Daten nicht: Sie bleiben auf dem iPad.
 
@@ -28,11 +28,42 @@ Die Programmdateien sind unter dieser Adresse öffentlich abrufbar. Deine eingeg
 - Die App erinnert auf der Übersicht, wenn die letzte Sicherung älter als 7 Tage ist.
 - Zusätzlich legt sie täglich und vor jedem Einlesen einer Sicherung einen **Wiederherstellungspunkt** auf dem Gerät an (ohne Fotos, die letzten 10). Zu finden unter „Liegenschaften“ → „Wiederherstellungspunkte“. Er ersetzt keine Sicherung in iCloud Drive.
 
+## Abgleich iPad ⇄ PC über iCloud Drive
+
+Einmalig einrichten:
+1. Am PC **iCloud für Windows** installieren und iCloud Drive einschalten.
+2. In iCloud Drive einen Ordner `FMS` anlegen.
+3. In der FMS-App am PC unter „Liegenschaften“ → **Datenordner wählen** → diesen Ordner `iCloud Drive\FMS` wählen.
+
+Ab dann schreibt der PC die Datei `FMS-Abgleich.json` automatisch (nach Änderungen, beim Start und wenn das Fenster wieder aktiv wird) und übernimmt, was das iPad dort abgelegt hat.
+
+Am iPad: Übersicht → **Abgleichen** (oder unter „Liegenschaften“ → „Mit iCloud abgleichen“):
+1. **Datei wählen** → iCloud Drive › FMS › `FMS-Abgleich.json`. Neues vom PC wird übernommen.
+2. **In iCloud Drive speichern** → „In Dateien sichern“ → iCloud Drive › FMS → vorhandene Datei **ersetzen**.
+
+Es geht nichts verloren: Pro Eintrag gilt der zuletzt geänderte Stand. Tabellenzeilen und Prüfprotokolle derselben Liegenschaft werden von beiden Geräten zusammengeführt. Fotos und Unterschriften reisen mit. Das Speichern am iPad zählt gleichzeitig als Sicherung.
+
+## QR-Etiketten
+
+- Leitern/Tritte: Liegenschaft → „Leitern & Tritte“ → **QR-Etiketten** (alle) oder im Prüfbuch einer Leiter → **QR-Etikett**.
+- Anlagen und Schlüssel: in der Liste → **QR-Etiketten**, oder im Eintrag → **QR-Etikett**.
+- Format wählbar (62 × 29 mm Brother, 50 × 30 mm Niimbot/Phomemo u. a., eigene Größe). **PDF zum Drucken** für AirPrint-Drucker und den PC, **Als Bild** für Bluetooth-Etikettendrucker (Bild in der App des Druckers öffnen).
+- **QR scannen** oben in der App: öffnet bei Leitern direkt das Prüfbuch, sonst den Eintrag. Wichtig: in der FMS-App scannen, nicht mit der Kamera-App (die würde Safari ohne deine Daten öffnen).
+
 ## Bedienung
 
 - **Suchen** oben rechts (am PC auch Strg+K): findet Liegenschaften, Leitern/Tritte (z. B. Inventar-Nr.), Aufträge, Wartung, Anlagen, Schlüssel und Termine.
+- **Merkliste:** Bei „Zuständig“, „Gemeldet von“, „Dienstleister“, „Firma“, Prüfer, Empfänger usw. erscheinen beim Antippen alle bisher verwendeten Personen und Firmen zur Auswahl. Mit × entfernst du einen Eintrag aus der Liste. Bei Terminen werden zur Firma die zuletzt verwendeten Kontaktdaten übernommen.
 - iPad hochkant: Unter „Liegenschaften“ erst die Liste, nach Antippen das Blatt; „‹ Alle Liegenschaften“ führt zurück.
 
+## Umstieg von „CAFM“ auf „FMS“ (iPad)
+
+Der Name auf dem Home-Bildschirm wird beim Hinzufügen festgelegt und ändert sich durch ein Update nicht. Außerdem hat jede Web-App auf dem Home-Bildschirm ihren **eigenen** Speicher. Deshalb so vorgehen:
+
+1. In der alten App (CAFM) **„Sicherung speichern“** → in iCloud Drive sichern.
+2. Die neue Version hochladen (gleiches oder neues Repository) und in Safari öffnen → „Zum Home-Bildschirm“ → Name **FMS**.
+3. In der neuen App **„Sicherung einlesen“** und die Datei aus Schritt 1 wählen.
+4. Erst wenn alles da ist, das alte CAFM-Symbol vom Home-Bildschirm löschen.
 ## Update
 
-Neue Version hochladen (Dateien ersetzen, **alle** Dateien inkl. `pdf-lib.min.js`). Die App holt sich das Update beim nächsten Öffnen mit Internet. Die Daten bleiben erhalten. Beim ersten Start der neuen Version werden die Daten automatisch in den größeren Gerätespeicher (IndexedDB) übernommen.
+Neue Version hochladen (Dateien ersetzen, **alle** Dateien inkl. `pdf-lib.min.js`, `qrcode.min.js` und `jsQR.min.js`). Die App holt sich das Update beim nächsten Öffnen mit Internet. Die Daten bleiben erhalten. Beim ersten Start der neuen Version werden die Daten automatisch in den größeren Gerätespeicher (IndexedDB) übernommen.

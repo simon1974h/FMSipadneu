@@ -1,6 +1,6 @@
 {
- "name": "CAFM Liegenschaften",
- "short_name": "CAFM",
+ "name": "FMS",
+ "short_name": "FMS",
  "start_url": "./",
  "scope": "./",
  "display": "standalone",
