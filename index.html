@@ -386,7 +386,37 @@ mark{background:var(--z2bg);color:inherit;border-radius:2px}
 .lbit:last-child{border-bottom:0}
 .lbit input{width:18px;height:18px;flex:none}
 .lbit small{display:block;color:var(--muted);font-size:12px;font-weight:400}
-@media (max-width:640px){.tb-search span{display:none}}
+.tb-user{padding:4px 10px 4px 4px}
+.av{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;color:#fff;font-size:11.5px;font-weight:700;letter-spacing:.02em;flex:none;font-family:var(--f-body)}
+.av.sm{width:22px;height:22px;font-size:9.5px;vertical-align:middle}
+.login{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:max(40px,env(safe-area-inset-top)) 16px 24px}
+body.locked{overflow:hidden}
+.lg-box{width:100%;max-width:640px;display:flex;flex-direction:column;gap:18px;align-items:center;text-align:center}
+.lg-brand{font-family:var(--f-display);font-weight:800;font-size:28px;color:var(--accent)}
+.lg-box h1{font-family:var(--f-display);font-size:22px;margin:0}
+.lg-users{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;width:100%}
+.lg-u{display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px 10px;border:1px solid var(--line);border-radius:14px;background:var(--surface);cursor:pointer;color:var(--ink)}
+.lg-u:hover,.lg-u.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.lg-u .av{width:52px;height:52px;font-size:18px}
+.lg-u small{color:var(--muted);font-size:12px}
+.lg-pin{display:flex;flex-direction:column;gap:8px;align-items:center;width:100%;max-width:320px}
+.lg-pin label{font-weight:600}
+.lg-row{display:flex;gap:8px;width:100%}
+.lg-row input{flex:1;padding:12px;font-size:20px;letter-spacing:.3em;text-align:center;border:1px solid var(--line);border-radius:10px;background:var(--surface);min-width:0}
+.swatches{display:flex;gap:6px;flex-wrap:wrap}
+.sw{position:relative;width:30px;height:30px;border-radius:50%;cursor:pointer;display:block}
+.sw input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.sw span{position:absolute;inset:-3px;border-radius:50%;border:2px solid transparent}
+.sw input:checked+span{border-color:var(--ink)}
+.ce.us{color:#fff}
+.rvdlg{max-width:1000px;height:calc(100vh - 48px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));max-height:1400px}
+.rvbody{flex:1;min-height:0;padding:0 12px;background:var(--sunk)}
+.rvframe{width:100%;height:100%;min-height:420px;border:0;background:#fff;display:block;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.claim{display:flex;align-items:center;justify-content:space-between;gap:10px 14px;flex-wrap:wrap;padding:12px 14px;border-radius:10px;border:1px solid var(--line)}
+.claim.free{background:var(--z2bg);border-color:transparent}
+.claim.mine{background:var(--z1bg);border-color:transparent}
+.claim.taken{background:var(--sunk)}
+@media (max-width:640px){.tb-search span:not(.av){display:none}}
 @media (max-width:900px){
   .app{padding-block:12px}
   .list{max-height:none}
@@ -406,6 +436,7 @@ mark{background:var(--z2bg);color:inherit;border-radius:2px}
 </style>
 </head><body>
 <header class="topbar" id="topbar"><div class="tb-in"><span class="tb-brand">FMS</span><nav class="tb-nav" id="nav" aria-label="Bereiche"></nav>
+  <button class="tb-search tb-user" id="userChip" type="button" hidden></button>
   <button class="tb-search tb-scan" id="scanBtn" type="button" aria-label="QR-Code scannen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M8 8h3v3H8zM13 13h3v3h-3zM13 8h3M8 13v3"/></svg><span>QR scannen</span></button>
   <button class="tb-search" id="gsBtn" type="button" aria-label="Alles durchsuchen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span>Suchen</span><kbd>Strg K</kbd></button></div></header>
 <div class="app" hidden>
@@ -435,6 +466,7 @@ mark{background:var(--z2bg);color:inherit;border-radius:2px}
 <main class="modwrap" id="mod" hidden></main>
 <div class="modal" id="imp" hidden></div>
 <div class="modal" id="cdel" hidden></div>
+<div class="login" id="login" hidden></div>
 
 
 <script>window.BEGEHUNG_OFFLINE=true;window.BEGEHUNG_PWA=true;window.BEGEHUNG_SEED={"kita-001": {"adresse": "Wintroper Weg 2, 59821 Arnsberg", "baujahr": "", "bearbeiter": "", "created": 1792824184232, "datum": "", "name": "Ev. Martin-Luther-Kindergarten", "notiz": "", "nr": "001", "nutzung": "Kindertagesstätte", "rows": {"bes": [], "bst": [], "licht": [], "omg": [], "schalter": [], "uv": []}, "status": "offen"}, "kita-002": {"adresse": "Heidestr. 17a, 59759 Arnsberg", "baujahr": "", "bearbeiter": "", "created": 1792824184233, "datum": "", "name": "Ev. Regenbogen Kindergarten", "notiz": "", "nr": "002", "nutzung": "Kindertagesstätte", "rows": {"bes": [], "bst": [], "licht": [], "omg": [], "schalter": [], "uv": []}, "status": "offen"}, "kita-003": {"adresse": "Zu den Gärten 67, 59755 Arnsberg", "baujahr": "", "bearbeiter": "", "created": 1792824184234, "datum": "", "name": "Ev. Arche-Noah-Kindergarten", "notiz": "", "nr": "003", "nutzung": "Kindertagesstätte", "rows": {"bes": [], "bst": [], "licht": [], "omg": [], "schalter": [], "uv": []}, "status": "offen"}, "kita-004": {"adresse": "Graf-Gottfried-Straße 92, 59755 Arnsberg", "baujahr": "", "bearbeiter": "", "created": 1792824184235, "datum": "", "name": "Ev. Bonhoeffer-Kindergarten", "notiz": "", "nr": "004", "nutzung": "Kindertagesstätte", "rows": {"bes": [], "bst": [], "licht": [], "omg": [], "schalter": [], "uv": []}, "status": "offen"}, "kita-005": {"adresse": "Dorfstraße 26, 59505 Bad Sassendorf-Weslarn", "baujahr": "", "bearbeiter": "", "created": 1792824184236, "datum": "", "name": "Ev. David-Kindergarten", "notiz": "", "nr": "005", "nutzung": "Kindertagesstätte", "rows": {"bes": [], "bst": [], "licht": [], "omg": [], "schalter": [], "uv": []}, "status": "offen"}, "kita-006": {"adresse": "Lohner Höhe 5, 59505 Bad Sassendorf", "baujahr": "", "bearbeiter": "", "created": 1792824184237, "datum": "", "name": "Ev. Johanna-Volke-Familienzentrum", "notiz": "", "nr": "006", "nutzung": "Familienzentrum / Kita", "rows": {"bes": [], "bst": [], "licht": [], "omg": [], "schalter": [], "uv": []}, "status": "offen"}, "kita-007": {"adresse": "Schluppergasse 4, 59505 Bad Sassendorf-Neuengeseke", "baujahr": "", "bearbeiter": "", "created": 1792824184238, "datum": "", "name": "Ev. Johannes-Kindergarten", "notiz": "", "nr": "007", "nutzung": "Kindertagesstätte", "rows": {"bes": [], "bst": [], "licht": [], "omg": [], "schalter": [], "uv": []}, "status": "offen"}, "kita-008": {"adresse": "Teichstraße 3, 59505 Bad Sassendorf-Lohne", "baujahr": "", "bearbeiter": "", "created": 1792824184239, "datum": "", "name": "Ev. Jona-Kindergarten", "notiz": "", "nr": "008", "nutzung": "Kindertagesstätte", "rows": {"bes": [], "bst": [], "licht": [], "omg": [], "schalter": [], "uv": []}, "status": "offen"}, "kita-009": {"adresse": "Ostermannstraße 8, 59505 Bad Sassendorf-Bettinghausen", "baujahr": "", "bearbeiter": "", "created": 1792824184240, "datum": "", "name": "Ev. Kindergarten Tausendfüßler", "notiz": "", "nr": "009", "nutzung": "Kindertagesstätte", "rows": {"bes": [], "bst": [], "licht": [], "omg": [], "schalter": [], "uv": []}, "status": "offen"}, "kita-010": {"adresse": "Veilchenweg 19, 59581 Warstein-Belecke", "baujahr": "", "bearbeiter": "", "created": 1792824184241, "datum": "", "name": "Ev. Familienzentrum NRW - Zachäus-Kindergarten", "notiz": "", "nr": "010", "nutzung": "Familienzentrum / Kita", "rows": {"bes": [], "bst": [], "licht": [], "omg": [], "schalter": [], "uv": []}, "status": "offen"}, "kita-011": {"adresse": "Am Zehnthof 3, 59597 Erwitte-Bad Westernkotten", "baujahr": "", "bearbeiter": "", "created": 1792824184242, "datum": "", "name": "Ev. Kindertagesstätte Regenbogen", "notiz": "", "nr": "011", "nutzung": "Kindertagesstätte", "rows": {"bes": [], "bst": [], "licht": [], "omg": [], "schalter": [], "uv": []}, "status": "offen"}, "kita-012": {"adresse": "Stockheimer Straße 24, 59590 Geseke", "baujahr": "", "bearbeiter": "", "created": 1792824184243, "datum": "", "name": "Ev. Familienzentrum Senfkorn", "notiz": "", "nr": "012", "nutzung": "Familienzentrum / Kita", "rows": {"bes": [], "bst": [], "licht": [], "omg": [], "schalter": [], "uv": []}, "status": "offen"}, "kita-013": {"adresse": "Brüderstraße 17, 59555 Lippstadt", "baujahr": "", "bearbeiter": "", "created": 1792824184244, "datum": "", "name": "Ev. Jakobi-Familienzentrum", "notiz": "", "nr": "013", "nutzung": "Familienzentrum / Kita", "rows": {"bes": [], "bst": [], "licht": [], "omg": [], "schalter": [], "uv": []}, "status": "offen"}, "kita-014": {"adresse": "Boschstraße 49, 59557 Lippstadt", "baujahr": "", "bearbeiter": "", "created": 1792824184245, "datum": "", "name": "Ev. Johannes-Kindergarten", "notiz": "", "nr": "014", "nutzung": "Kindertagesstätte", "rows": {"bes": [], "bst": [], "licht": [], "omg": [], "schalter": [], "uv": []}, "status": "offen"}, "kita-015": {"adresse": "Juchaczstraße 23, 59555 Lippstadt", "baujahr": "", "bearbeiter": "", "created": 1792824184246, "datum": "", "name": "Ev. Wichern-Kindergarten", "notiz": "", "nr": "015", "nutzung": "Kindertagesstätte", "rows": {"bes": [], "bst": [], "licht": [], "omg": [], "schalter": [], "uv": []}, "status": "offen"}, "kita-016": {"adresse": "Pastor-Thaemel-Straße, 34431 Marsberg", "baujahr": "", "bearbeiter": "", "created": 1792824184247, "datum": "", "name": "Ev. Jona-Kindergarten", "notiz": "Hausnummer fehlt in der Quelle – bitte ergänzen.", "nr": "016", "nutzung": "Kindertagesstätte", "rows": {"bes": [], "bst": [], "licht": [], "omg": [], "schalter": [], "uv": []}, "status": "offen"}, "kita-017": {"adresse": "Von-Westphalen-Str. 9a, 59872 Meschede", "baujahr": "", "bearbeiter": "", "created": 1792824184248, "datum": "", "name": "Ev. Familienzentrum NRW Johanneskindergarten", "notiz": "", "nr": "017", "nutzung": "Familienzentrum / Kita", "rows": {"bes": [], "bst": [], "licht": [], "omg": [], "schalter": [], "uv": []}, "status": "offen"}, "kita-018": {"adresse": "Syringer Straße 28a, 59519 Möhnesee-Völlinghausen", "baujahr": "", "bearbeiter": "", "created": 1792824184249, "datum": "", "name": "Ev. Kindergarten Die Arche", "notiz": "", "nr": "018", "nutzung": "Kindertagesstätte", "rows": {"bes": [], "bst": [], "licht": [], "omg": [], "schalter": [], "uv": []}, "status": "offen"}, "kita-019": {"adresse": "Börnigeweg 1, 59519 Möhnesee-Körbecke", "baujahr": "", "bearbeiter": "", "created": 1792824184250, "datum": "", "name": "Ev. Kindergarten Möhnesee", "notiz": "", "nr": "019", "nutzung": "Kindertagesstätte", "rows": {"bes": [], "bst": [], "licht": [], "omg": [], "schalter": [], "uv": []}, "status": "offen"}, "kita-020": {"adresse": "Patrokliweg 20, 59494 Soest", "baujahr": "", "bearbeiter": "", "created": 1792824184251, "datum": "", "name": "Ev. Katharina-von-Bora-Kindergarten", "notiz": "", "nr": "020", "nutzung": "Kindertagesstätte", "rows": {"bes": [], "bst": [], "licht": [], "omg": [], "schalter": [], "uv": []}, "status": "offen"}, "kita-021": {"adresse": "Rottlandweg 2, 59494 Soest", "baujahr": "", "bearbeiter": "", "created": 1792824184252, "datum": "", "name": "Ev. Kindergarten Löwenzahn", "notiz": "", "nr": "021", "nutzung": "Kindertagesstätte", "rows": {"bes": [], "bst": [], "licht": [], "omg": [], "schalter": [], "uv": []}, "status": "offen"}, "kita-022": {"adresse": "Am Weinberg 3, 59494 Soest-Ostönnen", "baujahr": "", "bearbeiter": "", "created": 1792824184253, "datum": "", "name": "Ev. Kindergarten Spatzennest", "notiz": "", "nr": "022", "nutzung": "Kindertagesstätte", "rows": {"bes": [], "bst": [], "licht": [], "omg": [], "schalter": [], "uv": []}, "status": "offen"}, "kita-023": {"adresse": "Schwarzer Weg 26, 59494 Soest", "baujahr": "", "bearbeiter": "", "created": 1792824184254, "datum": "", "name": "Ev. Martin-Luther-Kita", "notiz": "", "nr": "023", "nutzung": "Kindertagesstätte", "rows": {"bes": [], "bst": [], "licht": [], "omg": [], "schalter": [], "uv": []}, "status": "offen"}, "kita-024": {"adresse": "Haarhofsgasse 9a, 59494 Soest", "baujahr": "", "bearbeiter": "", "created": 1792824184255, "datum": "", "name": "Ev. Regenbogen-Kindergarten", "notiz": "", "nr": "024", "nutzung": "Kindertagesstätte", "rows": {"bes": [], "bst": [], "licht": [], "omg": [], "schalter": [], "uv": []}, "status": "offen"}, "kita-025": {"adresse": "Torschreiberweg 2, 59494 Soest", "baujahr": "", "bearbeiter": "", "created": 1792824184256, "datum": "", "name": "Ev. Petrus Kindergarten", "notiz": "", "nr": "025", "nutzung": "Kindertagesstätte", "rows": {"bes": [], "bst": [], "licht": [], "omg": [], "schalter": [], "uv": []}, "status": "offen"}, "kita-026": {"adresse": "Eichendorffstr. 73, 59846 Sundern", "baujahr": "", "bearbeiter": "", "created": 1792824184257, "datum": "", "name": "Ev. Lukas-Familienzentrum", "notiz": "", "nr": "026", "nutzung": "Familienzentrum / Kita", "rows": {"bes": [], "bst": [], "licht": [], "omg": [], "schalter": [], "uv": []}, "status": "offen"}, "kita-027": {"adresse": "Bördestraße 74, 59514 Welver-Borgeln", "baujahr": "", "bearbeiter": "", "created": 1792824184258, "datum": "", "name": "Ev. Samuel Kindergarten", "notiz": "", "nr": "027", "nutzung": "Kindertagesstätte", "rows": {"bes": [], "bst": [], "licht": [], "omg": [], "schalter": [], "uv": []}, "status": "offen"}, "kita-028": {"adresse": "Reiherstraße 9, 59514 Welver", "baujahr": "", "bearbeiter": "", "created": 1792824184259, "datum": "", "name": "Ev. Kindergarten Schilfkorb", "notiz": "", "nr": "028", "nutzung": "Kindertagesstätte", "rows": {"bes": [], "bst": [], "licht": [], "omg": [], "schalter": [], "uv": []}, "status": "offen"}, "kita-029": {"adresse": "Feldstraße 2a, 59514 Welver-Dinker", "baujahr": "", "bearbeiter": "", "created": 1792824184260, "datum": "", "name": "Ev. Kindergarten St. Othmar", "notiz": "", "nr": "029", "nutzung": "Kindertagesstätte", "rows": {"bes": [], "bst": [], "licht": [], "omg": [], "schalter": [], "uv": []}, "status": "offen"}, "kita-030": {"adresse": "Zum Spielplatz 8, 59514 Welver-Schwefe", "baujahr": "", "bearbeiter": "", "created": 1792824184261, "datum": "", "name": "Ev. Severin-Kindergarten", "notiz": "", "nr": "030", "nutzung": "Kindertagesstätte", "rows": {"bes": [], "bst": [], "licht": [], "omg": [], "schalter": [], "uv": []}, "status": "offen"}, "ogs-031": {"adresse": "Zur Sälzerschule 48, 59505 Bad Sassendorf", "baujahr": "", "bearbeiter": "", "created": 1792824000031, "datum": "", "name": "OGS Bad Sassendorf", "notiz": "", "nr": "031", "nutzung": "Offene Ganztagsschule", "rows": {"bes": [], "bst": [], "licht": [], "omg": [], "schalter": [], "uv": []}, "status": "offen"}, "ogs-032": {"adresse": "Im Hagen 19, 59514 Welver", "baujahr": "", "bearbeiter": "", "created": 1792824000032, "datum": "", "name": "OGS Welver", "notiz": "", "nr": "032", "nutzung": "Offene Ganztagsschule", "rows": {"bes": [], "bst": [], "licht": [], "omg": [], "schalter": [], "uv": []}, "status": "offen"}, "ogs-033": {"adresse": "Bördestraße 74, 59514 Welver-Borgeln", "baujahr": "", "bearbeiter": "", "created": 1792824000033, "datum": "", "name": "OGS Borgeln", "notiz": "Gleiche Adresse wie Ev. Samuel Kindergarten (Nr. 027).", "nr": "033", "nutzung": "Offene Ganztagsschule", "rows": {"bes": [], "bst": [], "licht": [], "omg": [], "schalter": [], "uv": []}, "status": "offen"}};</script>
@@ -457,10 +489,9 @@ const ALL_SECTIONS = [
   {key:"schalter", group:"elektro", label:"Schalterserien", hint:"Hersteller, Serie und Farbe für spätere Ersatzbeschaffung.",
    cols:[{k:"bereich",l:"Bereich",ph:"OG komplett"},{k:"herst",l:"Hersteller",ph:"Gira"},{k:"serie",l:"Serie",ph:"E2"},
          {k:"farbe",l:"Farbe",ph:"reinweiß"},{k:"anz",l:"Anzahl",t:"num"},{k:"zustand",l:"Zustand",t:"z"},{k:"bem",l:"Bemerkung"}]},
-  {key:"omg", group:"elektro", label:"Ortsveränderliche Geräte", short:"Ortsveränderl. Geräte", hint:"Anzahl und Prüffrist je Bereich. Die nächste Prüfung wird aus der letzten Prüfung berechnet.",
-   cols:[{k:"bereich",l:"Bereich",ph:"Büros EG"},{k:"anz",l:"Anzahl",t:"num"},
-         {k:"frist",l:"Prüffrist",t:"sel",o:["","6","12","24","48"],ol:{"":"–","6":"6 Monate","12":"12 Monate","24":"24 Monate","48":"48 Monate"}},
-         {k:"pr",l:"Letzte Prüfung",t:"date"},{k:"next",l:"Nächste Prüfung",t:"due"}]},
+  {key:"sonder", group:"elektro", label:"Sonderanlagen", short:"Sonderanlagen", hint:"Haustechnik, die in keine Standard-Tabelle passt: Schaltschränke für Heizung, Lüftung und Klima, Hebeanlagen, Pumpen, Notstrom, PV usw. Je Anlage eine Zeile. (Ortsveränderliche Geräte werden in der Prüfsoftware des Prüfgeräts geführt.)",
+   cols:[{k:"bez",l:"Bezeichnung",ph:"z. B. Schaltschrank Heizung"},{k:"art",l:"Art",t:"sel",o:["","Schaltschrank Heizung","Schaltschrank Lüftung / Klima","Wasserhebeanlage","Pumpe / Druckerhöhung","Warmwasserbereitung","Notstrom / USV","Sicherheitsbeleuchtung (Zentrale)","Brandmelde- / Alarmanlage","PV-Anlage","Wallbox / Ladesäule","Tor- / Türantrieb","Aufzugssteuerung","Sonstiges"]},
+         {k:"ort",l:"Standort",ph:"z. B. Heizungsraum KG"},{k:"herst",l:"Hersteller / Typ",ph:"z. B. Wilo DrainLift"},{k:"zustand",l:"Zustand",t:"z"},{k:"bem",l:"Bemerkung",ph:"z. B. Wartungsvertrag vorhanden"}]},
   {key:"leiter", group:"leiter", label:"Leitern", hint:"Jede Leiter einzeln erfassen. Über „Prüfen“ führst du Erst- und Regelprüfung mit Protokoll durch.",
    cols:[{k:"inv",l:"Inv.-Nr.",ph:"L-001"},{k:"art",l:"Art",t:"sel",o:["","Anlegeleiter","Stehleiter","Mehrzweckleiter","Schiebeleiter","Seilzugleiter","Podestleiter","Plattformleiter","Mastleiter","Sonstige"]},
          {k:"typ",l:"Hersteller / Typ",ph:"Hymer 4021"},{k:"mat",l:"Material",t:"sel",o:["","Aluminium","Holz","GFK","Stahl"]},{k:"spr",l:"Sprossen",t:"num"},
@@ -479,6 +510,8 @@ const ALL_SECTIONS = [
    cols:[{k:"bereich",l:"Bereich",ph:"Keller"},{k:"text",l:"Beschreibung",ph:"Feuchtigkeit an Verteilung"},
          {k:"prio",l:"Priorität",t:"sel",o:["","niedrig","mittel","hoch"]},{k:"mass",l:"Maßnahme",ph:"Elektriker beauftragen"},{k:"zustand",l:"Zustand",t:"z"}]}
 ];
+/* Versionsstempel – wird vom Build-Skript (build-windows.ps1) bei jedem Stand auf Datum und Uhrzeit gesetzt */
+const FMS_VERSION="18.11.2026, 14:35";
 const MODE = window.APP_MODE||"begehung", LAD_ONLY = MODE==="leiter";
 const APP_ID = LAD_ONLY?"leiterpruefung":"begehung", APP_LABEL = LAD_ONLY?"Leiterprüfung":"FMS", APP_FILE = LAD_ONLY?"Leiterpruefung":"FMS";
 const SECTIONS = LAD_ONLY?ALL_SECTIONS.filter(s=>s.group==="leiter").map(s=>{const cols=s.cols.filter(c=>c.k!=="ort");
@@ -545,7 +578,7 @@ function stats(o){
   const ladDue=lad.filter(x=>["over","missing","locked"].includes(ladStatus(x).state)).length;
   return {
     uv:r.uv.length, sich:r.uv.reduce((a,x)=>a+num(x.sich),0), fi:r.uv.reduce((a,x)=>a+num(x.fi),0),
-    leuchten:r.licht.reduce((a,x)=>a+num(x.anz),0), omg:r.omg.reduce((a,x)=>a+num(x.anz),0), omgDue,
+    leuchten:r.licht.reduce((a,x)=>a+num(x.anz),0), omg:r.omg.reduce((a,x)=>a+num(x.anz),0), omgDue, sonder:r.sonder.length,
     tueren:r.bst.length, maengel:z[3]+z[4], dringend:z[4], lad:lad.length, ladDue
   };
 }
@@ -570,7 +603,7 @@ async function flush(id){
   if(again[id]){again[id]=false;flush(id)}
 }
 /* ---------- Weitere Sammlungen (FMS-Module) ---------- */
-const COLLS = LAD_ONLY?["historie"]:["auftraege","wartung","anlagen","schluessel","taetig","vertraege","zaehler","historie"];
+const COLLS = LAD_ONLY?["historie"]:["auftraege","wartung","anlagen","schluessel","taetig","vertraege","zaehler","benutzer","historie"];
 const C={};COLLS.forEach(n=>C[n]={map:new Map(),dirty:new Set(),timers:{},writing:{},again:{},ref:null});
 const clone=x=>JSON.parse(JSON.stringify(x));
 function cTouch(n,id){const c=C[n],r=c.map.get(id);if(r)r.updated=Date.now();c.dirty.add(id);clearTimeout(c.timers[id]);
@@ -603,7 +636,7 @@ function collsPayload(){return Object.fromEntries(COLLS.map(n=>[n,Object.fromEnt
 
 /* ---------- Historie (läuft im Hintergrund) ---------- */
 const HIST_EDIT_MIN=15, histOpen={};
-function histWho(){try{return JSON.parse(localStorage.getItem("begehung-pruefer")||"{}").pruefer||""}catch(e){return ""}}
+function histWho(){if(typeof meName==="function"&&meName())return meName();try{return JSON.parse(localStorage.getItem("begehung-pruefer")||"{}").pruefer||""}catch(e){return ""}}
 function histAdd(e){if(!C.historie)return null;const id=newRecId("historie");C.historie.map.set(id,clone(Object.assign({at:Date.now(),who:histWho()},e)));cTouch("historie",id);return id}
 function histEdit(key,info,field,act){
   if(!C.historie)return;const h=histOpen[key],now=Date.now();
@@ -624,7 +657,7 @@ function recInfo(m,id,r){const M=MODS[m];return {area:M.label,label:cut([r.nr||r
 /* Erhöhte Sicherheitsabfrage beim Löschen */
 let cdel=null;
 const CD_WORD=v=>{v=v.trim().toUpperCase();return v==="LÖSCHEN"||v==="LOESCHEN"};
-function confirmDelete(o){cdel=o;const el=$("#cdel");el.hidden=false;
+function confirmDelete(o){if(typeof can==="function"&&!can("delete"))return denied("Löschen dürfen nur Verwaltung und Administratoren.");cdel=o;const el=$("#cdel");el.hidden=false;
   el.innerHTML=`<div class="dlg" role="alertdialog" aria-modal="true" aria-labelledby="cdT" style="max-width:520px">
     <div class="dlg-h"><div><h2 id="cdT">${esc(o.title)} löschen?</h2><p>Bitte bestätigen. Das schützt vor versehentlichem Löschen.</p></div><button class="x" type="button" data-cd="no" aria-label="Abbrechen">×</button></div>
     <div class="dlg-b">
@@ -645,6 +678,7 @@ document.addEventListener("keydown",e=>{if(!cdel)return;if(e.key==="Escape"){e.s
 
 /* Wiederherstellen aus der Historie */
 function histRestore(hid){
+  if(!can("restore"))return denied("Wiederherstellen dürfen nur Verwaltung und Administratoren.");
   const h=C.historie.map.get(hid);if(!h||!h.snap||h.restored)return;const s=h.snap;
   if(s.type==="rec"){if(!C[s.m])return;let id=s.id;if(C[s.m].map.has(id))id=newRecId(s.m);C[s.m].map.set(id,clone(s.data));cTouch(s.m,id)}
   else if(s.type==="row"){const o=objs.get(s.obj);if(!o){setSave("err","Die zugehörige Liegenschaft fehlt. Stelle zuerst die Liegenschaft wieder her.");return}
@@ -659,13 +693,13 @@ function histRestore(hid){
 }
 
 /* Historie anzeigen */
-const HS={q:"",act:"",area:"",lieg:"",limit:150};let histDlg=false;
+const HS={q:"",act:"",area:"",lieg:"",who:"",limit:150};let histDlg=false;
 const HACT={angelegt:"st-ok",geändert:"st-offen",gelöscht:"st-crit",wiederhergestellt:"st-arbeit"};
 function histList(){
   const q=HS.q.trim().toLowerCase();
   return [...C.historie.map.entries()].map(([id,h])=>Object.assign({_id:id},h)).filter(h=>{
     if(HS.act==="andere"?HACT[h.act]:HS.act&&h.act!==HS.act)return false;
-    if(HS.area&&h.area!==HS.area)return false;if(HS.lieg&&h.lieg!==HS.lieg)return false;
+    if(HS.area&&h.area!==HS.area)return false;if(HS.lieg&&h.lieg!==HS.lieg)return false;if(HS.who&&(h.who||"")!==HS.who)return false;
     if(q&&![h.label,h.area,h.liegName,h.grund,h.note,h.who,(h.fields||[]).join(" ")].join(" ").toLowerCase().includes(q))return false;return true})
     .sort((a,b)=>(b.until||b.at)-(a.until||a.at));
 }
@@ -680,6 +714,7 @@ function histHTML(){
       <input type="search" data-hs="q" id="hs-q" placeholder="Suchen …" value="${esc(HS.q)}" aria-label="Historie durchsuchen">
       ${sel("act",[["","Alle Vorgänge"],["angelegt","Angelegt"],["geändert","Geändert"],["gelöscht","Gelöscht"],["wiederhergestellt","Wiederhergestellt"],["andere","Prüfungen, Abzeichnungen, Sonstiges"]],"Vorgang")}
       ${sel("area",[["","Alle Bereiche"],...areas.map(a=>[a,a])],"Bereich")}
+      ${sel("who",[["","Alle Personen"],...[...new Set([...C.historie.map.values()].map(h=>h.who).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"de")).map(w=>[w,w])],"Person")}
       ${!LAD_ONLY&&typeof liegSelect==="function"?liegSelect("hs-lieg",HS.lieg).replace('<select id="hs-lieg"','<select id="hs-lieg" data-hs="lieg"'):""}
     </div>
     ${rows.length?`<div class="tw"><table class="mt"><thead><tr><th>Zeitpunkt</th><th>Vorgang</th><th>Bereich</th><th>Eintrag</th><th>Von</th><th></th></tr></thead><tbody>
@@ -940,6 +975,7 @@ function renderRp(){const r=rpDlg;if(!r)return;
     <div class="dlg-f"><span></span><div class="actions"><button class="btn pri" type="button" data-rp="close">Schließen</button></div></div></div>`}
 async function rpClick(e){const b=e.target.closest("[data-rp]");if(!b||!rpDlg||rpDlg.busy)return;const a=b.dataset.rp;
   if(a==="close"){rpDlg=null;return closeImport()}
+  if(!can("restore"))return denied("Wiederherstellen dürfen nur Verwaltung und Administratoren.");
   const d=await idbGet("kv",b.dataset.k);if(!d){setSave("err","Wiederherstellungspunkt nicht lesbar");return}
   const label="Wiederherstellungspunkt "+new Date(d.savedAt).toLocaleString("de-DE");
   if(a==="merge"){rpDlg=null;d.app=APP_ID;return openRestore(d,label)}
@@ -1021,7 +1057,7 @@ document.addEventListener("change",async e=>{if(e.target.id!=="syFile"||!syDlg)r
   catch(err){s.msg=`err:Diese Datei ist keine ${APP_LABEL}-Abgleich- oder Sicherungsdatei.`}
   s.busy="";if(syDlg===s)renderSync()});
 document.addEventListener("click",e=>{if(e.target.closest('[data-sy="open"]'))openSync()});
-$("#bkImp").addEventListener("click",()=>$("#bkFile").click());
+$("#bkImp").addEventListener("click",()=>{if(!can("backupImport"))return denied("Sicherungen einlesen dürfen nur Verwaltung und Administratoren.");$("#bkFile").click()});
 $("#bkFile").addEventListener("change",async e=>{
   const f=e.target.files[0];e.target.value="";if(!f)return;
   try{const d=JSON.parse(await f.text());if(!d||d.app!==APP_ID||!d.objekte)throw 0;openRestore(d,f.name)}
@@ -1057,7 +1093,7 @@ function kpiHTML(o){const s=stats(o);
    <div class="kpi"><dt>Sicherungen</dt><dd>${s.sich}</dd></div>
    <div class="kpi"><dt>FI / RCD</dt><dd>${s.fi}</dd></div>
    <div class="kpi"><dt>Leuchten</dt><dd>${s.leuchten}</dd></div>
-   <div class="kpi ${s.omgDue?"crit":""}"><dt>Ortsv. Geräte</dt><dd>${s.omg}${s.omgDue?`<span style="font-size:12px"> · ${s.omgDue} fällig</span>`:""}</dd></div>
+   <div class="kpi"><dt>Sonderanlagen</dt><dd>${s.sonder}</dd></div>
    <div class="kpi ${s.ladDue?"crit":""}"><dt>Leitern & Tritte</dt><dd>${s.lad}${s.ladDue?`<span style="font-size:12px"> · ${s.ladDue} offen</span>`:""}</dd></div>
    <div class="kpi"><dt>Brandschutztüren</dt><dd>${s.tueren}</dd></div>
    <div class="kpi ${s.dringend?"crit":s.maengel?"warn":""}"><dt>Mängel (Zust. 3–4)</dt><dd>${s.maengel}</dd></div></dl>`}
@@ -1154,7 +1190,7 @@ function cellHTML(c,row,ri,sk){
   if(c.t==="sel") return `<td><select ${a}>${c.o.map(x=>`<option value="${esc(x)}"${String(v)===x?" selected":""}>${esc(c.ol?c.ol[x]:(x||"–"))}</option>`).join("")}</select></td>`;
   if(c.t==="num") return `<td><input class="num" inputmode="numeric" ${a} value="${esc(v)}" placeholder="0"></td>`;
   if(c.t==="date") return `<td><input type="date" ${a} value="${esc(v)}"></td>`;
-  if(c.t==="pstat"){const st=ladStatus(row);return `<td class="ro"><button type="button" class="pbtn" data-act="pruef" data-sec="${sk}" data-rid="${row.id}"><span class="due ${st.cls}">${st.txt}</span><span class="pgo">${st.state==="missing"?"Erstprüfung":"Prüfen"} ›</span></button></td>`}
+  if(c.t==="pstat"){const st=ladStatus(row),bu=row.bearb&&typeof uName==="function"?C.benutzer.map.get(row.bearb):null;return `<td class="ro"><button type="button" class="pbtn" data-act="pruef" data-sec="${sk}" data-rid="${row.id}"><span class="due ${st.cls}">${st.txt}</span>${bu?`<span class="av sm" style="background:${esc(bu.farbe||U_FARBEN[0])}" title="übernommen von ${esc(bu.name)}">${esc(initials(bu))}</span>`:""}<span class="pgo">${st.state==="missing"?"Erstprüfung":"Prüfen"} ›</span></button></td>`}
   if(c.t==="due"){const d=dueInfo(row);return `<td class="ro" id="due-${row.id}"><span class="due ${d.cls}">${d.txt}</span></td>`}
   return `<td><input ${a} value="${esc(v)}" placeholder="${esc(c.ph||"")}"${c.list?' list="liegList"':c.dl?` list="dl-${c.k}"`:""}></td>`;
 }
@@ -1245,7 +1281,7 @@ $("#impBtn").addEventListener("click",openImport);
 
 function newId(){return mode==="db"?col.doc().id:rid()}
 function newObj(){
-  const id=newId();const o=blankObj();o.datum=today();
+  const id=newId();const o=blankObj();o.datum=today();if(meName())o.angelegtVon=meName();
   objs.set(id,o);active=id;tab="stamm";confirmDel=false;detailOn=true;
   schedule(id);histEdit("obj:"+id,objInfo(id,o),null,"angelegt");renderList();renderSheet();const n=$("#f-name");if(n)n.focus();
 }
@@ -1267,7 +1303,7 @@ const IMP_FIELDS=[
 ];
 let imp={rows:[],head:[],map:{},skipDup:true,msg:"",busy:false};
 function openImport(){imp={rows:[],head:[],map:{},skipDup:true,msg:"",busy:false};$("#imp").hidden=false;renderImport();}
-function closeImport(){scanStop();$("#imp").hidden=true;$("#imp").innerHTML="";restore=null;rpDlg=null;gs=null;lbl=null;syDlg=null;mq=null;tplState=null;histDlg=false;mailImp=null;termImp=null;if(docDlg){docDlg.pages.forEach(p=>URL.revokeObjectURL(p.url));docDlg=null;renderSheet()}if(recDlg){finishNew();recDlg=null;afterRec();return}if(photo||pr){photo=null;pr=null;renderSheet()}}
+function closeImport(){scanStop();$("#imp").hidden=true;$("#imp").innerHTML="";restore=null;rpDlg=null;gs=null;lbl=null;syDlg=null;mq=null;ud=null;rv=null;tplState=null;histDlg=false;mailImp=null;termImp=null;if(docDlg){docDlg.pages.forEach(p=>URL.revokeObjectURL(p.url));docDlg=null;renderSheet()}if(recDlg){finishNew();recDlg=null;afterRec();return}if(photo||pr){photo=null;pr=null;renderSheet()}}
 function guessMap(head){
   const map={},used=new Set();
   IMP_FIELDS.forEach(f=>{const i=head.findIndex((h,ix)=>!used.has(ix)&&f.re.test(String(h).trim()));if(i>=0){map[f.k]=i;used.add(i)}});
@@ -1356,6 +1392,8 @@ $("#imp").addEventListener("click",e=>{
   if(lbl&&e.target.closest("[data-lb]"))return lblClick(e);
   if(syDlg&&e.target.closest("[data-sy]"))return syClick(e);
   if(mq&&e.target.closest("[data-mq]"))return mqClick(e);
+  if(ud&&e.target.closest("[data-ud]"))return udClick(e);
+  if(rv&&e.target.closest("[data-rv]"))return rvClick(e);
   if(e.target.closest("[data-sc]"))return closeImport();
   const rs=e.target.closest("[data-rs]");if(rs){if(rs.dataset.rs==="close"){if(!restore.busy){restore=null;closeImport()}}else if(!restore.busy)doRestore();return}
   if(e.target.closest("[data-ph]"))return photoClick(e);
@@ -1463,8 +1501,8 @@ function renderPruef(){
   else if(pr.view){const p=ps.find(x=>x.id===pr.view);body=pruefView(o,r,s,p);
     foot=`<button class="btn" type="button" data-pr="list">← Alle Prüfungen</button><div class="actions">${PRINT_OK?`<button class="btn" type="button" data-pr="print" data-id="${p.id}">Drucken</button>`:""}${canSave()?`<button class="btn pri" type="button" data-pr="pdf" data-id="${p.id}">Als PDF</button>`:""}</div>`}
   else{
-    const st=ladStatus(r);
-    body=`${itemMeta(o,r,s)}
+    const st=ladStatus(r);body=ladClaimHTML(r);
+    body+=`${itemMeta(o,r,s)}
       <div class="sec-head"><div><h2>Prüfungen</h2><p>Status: <span class="due ${st.cls}">${st.txt}</span> · Prüffrist ${r.frist?r.frist+" Monate":"nicht festgelegt"}</p></div>
         <button class="btn pri" type="button" data-pr="new">${ps.length?"Neue Prüfung durchführen":"Erstprüfung durchführen"}</button></div>
       ${ps.length?`<div class="plist">${ps.map(p=>`<div class="prow"><span class="d">${fmtDate(p.datum)}</span><div>${esc(PRUEF_ARTEN[p.art]||p.art)}<small>Prüfer: ${esc(p.pruefer)}</small></div>
@@ -1525,6 +1563,11 @@ function initSig(){
   c.addEventListener("pointermove",e=>{if(!drawing)return;const p=pt(e);g.beginPath();g.moveTo(...last);g.lineTo(...p);g.stroke();last=p;if(!pr.sigDrawn){pr.sigDrawn=true;prReady()}});
   const up=()=>{drawing=false};c.addEventListener("pointerup",up);c.addEventListener("pointercancel",up);
 }
+/* Leiter/Tritt: wer übernimmt die anstehende Prüfung */
+function ladClaimHTML(r){if(!userMode()||ladStatus(r).state==="out")return "";const when=r.bearbAm?new Date(r.bearbAm).toLocaleString("de-DE",{dateStyle:"short",timeStyle:"short"}):"",n=ladNext(r),what=n?`Prüfung fällig ${fmtDate(n)}`:ladStatus(r).state==="missing"?"Erstprüfung":"Nächste Prüfung";
+  if(!r.bearb)return `<div class="claim free"><span><b>${what}: noch nicht übernommen.</b></span><button class="btn pri" type="button" data-pr="lclaim">Übernehmen</button></div>`;
+  if(r.bearb===me)return `<div class="claim mine"><span><span class="av sm" style="background:${esc(uColor(me))}">${esc(initials(meU()))}</span> <b>Du übernimmst: ${what}</b>${when?" (seit "+when+")":""}.</span><button class="btn sm" type="button" data-pr="lrelease">Wieder abgeben</button></div>`;
+  return `<div class="claim taken"><span><span class="av sm" style="background:${esc(uColor(r.bearb))}">${esc(initials(C.benutzer.map.get(r.bearb)||{name:"?"}))}</span> <b>${esc(uName(r.bearb)||"(nicht mehr aktiv)")} übernimmt: ${what}</b>${when?" (seit "+when+")":""}.</span><button class="btn sm" type="button" data-pr="ltakeover">Selbst übernehmen</button></div>`}
 async function finishPruef(){
   const m=prMissing();if(m.length)return;
   const b=$("#prFinish");b.disabled=true;b.textContent="Wird gespeichert …";
@@ -1537,7 +1580,7 @@ async function finishPruef(){
     next:d.erg==="ok"?addMonths(d.datum,r0.frist||"12"):"",sig,done:Date.now()};
   const o=objs.get(ctx.obj),r=o&&o.rows[ctx.sec].find(x=>x.id===ctx.rid);
   if(!r){closeImport();return}
-  r.pruef=(r.pruef||[]).concat(p);schedule(ctx.obj);
+  r.pruef=(r.pruef||[]).concat(p);delete r.bearb;delete r.bearbAm;schedule(ctx.obj);
   histAdd(Object.assign({act:"Prüfung abgeschlossen",note:`${PRUEF_ARTEN[p.art]} · ${p.erg==="ok"?"bestanden":p.erg==="gesperrt"?"gesperrt":"ausgesondert"} · Prüfer ${p.pruefer}`},rowInfo(ctx.obj,ctx.sec,r)));
   try{localStorage.setItem("begehung-pruefer",JSON.stringify({pruefer:p.pruefer,quali:p.quali}))}catch(e){}
   if(pr&&pr.rid===ctx.rid){pr.view=p.id;renderPruef()}
@@ -1606,11 +1649,15 @@ function pruefClick(e){
   if(a==="close")return closeImport();
   if(a==="list"){pr.view=null;return renderPruef()}
   if(a==="view"){pr.view=b.dataset.id;return renderPruef()}
-  if(a==="new"){let def={pruefer:"",quali:"zur Prüfung befähigte Person (BetrSichV § 2 Abs. 6)"};try{Object.assign(def,JSON.parse(localStorage.getItem("begehung-pruefer")||"{}"))}catch(e){}
+  if(a==="new"){let def={pruefer:"",quali:"zur Prüfung befähigte Person (BetrSichV § 2 Abs. 6)"};try{Object.assign(def,JSON.parse(localStorage.getItem("begehung-pruefer")||"{}"))}catch(e){}if(meName())def.pruefer=meName();
     pr.d={art:(r.pruef||[]).some(p=>p.done)?"regel":"erst",datum:today(),pruefer:def.pruefer,quali:def.quali,items:{},bem:"",mass:"",erg:"",plakette:false};pr.view="new";return renderPruef()}
   if(a==="allio"){PRUEF_PUNKTE.forEach((_,i)=>{if(!pr.d.items[i]){pr.d.items[i]="io";const el=document.querySelector(`input[name="pp${i}"][value="io"]`);if(el)el.checked=true}});return prReady()}
   if(a==="sigclear"){initSig();return prReady()}
   if(a==="finish")return finishPruef();
+  if(a==="lclaim"||a==="ltakeover"){if(!me)return;const prev=r.bearb&&r.bearb!==me?uName(r.bearb):"";
+    if(a==="ltakeover"&&!confirm(`Von ${prev||"der anderen Person"} übernehmen?\n\nBitte vorher kurz absprechen.`))return;
+    r.bearb=me;r.bearbAm=Date.now();schedule(pr.obj);histAdd(Object.assign({act:prev?"übernommen":"angenommen",note:prev?"vorher "+prev:"Prüfung"},rowInfo(pr.obj,pr.sec,r)));refreshLive();return renderPruef()}
+  if(a==="lrelease"){if(r.bearb!==me)return;delete r.bearb;delete r.bearbAm;schedule(pr.obj);histAdd(Object.assign({act:"abgegeben",note:"Prüfung"},rowInfo(pr.obj,pr.sec,r)));refreshLive();return renderPruef()}
   if(a==="qr"){const it=ladLabel(pr.obj,pr.sec,r);pr=null;return openLabels([it],"QR-Etikett "+it.title)}
   if(a==="pdf"||a==="print"||a==="book")return protoAction(a,b.dataset.id);
 }
@@ -1957,7 +2004,7 @@ function modelHTML(models,docTitle){
   const e=esc,cell=c=>`<td class="${cellC(c)}">${e(cellT(c)).replace(/\n/g,"<br>")}</td>`;
   const body=models.map((m,mi)=>`<section${mi?' style="page-break-before:always"':""}><div class="top"><div><h1>${e(m.title)}</h1><small>${e(m.sub||"")}</small></div><div style="text-align:right"><img class="logo" src="${LOGO_PNG}" alt="Ev. Kirchenkreis Soest-Arnsberg">${(m.right||[]).map((l,i)=>i?`<small>${e(l)}</small><br>`:`<b>${e(l)}</b><br>`).join("")}</div></div>
     ${m.blocks.map(b=>b.h?`<h2>${e(b.h)}</h2>`:b.kv?`<table class="kv">${b.kv.map(([k,v])=>`<tr><th>${e(cellT(k))}</th>${cell(v)}</tr>`).join("")}</table>`
-      :b.kv2?`<table class="kv">${(()=>{let h="";for(let i=0;i<b.kv2.length;i+=2){const a=b.kv2[i],c=b.kv2[i+1]||["",""];h+=`<tr><th>${e(cellT(a[0]))}</th>${cell(a[1])}<th>${e(cellT(c[0]))}</th>${cell(c[1])}</tr>`}return h})()}</table>`
+      :b.kv2?`<table class="kv kv2">${(()=>{let h="";for(let i=0;i<b.kv2.length;i+=2){const a=b.kv2[i],c=b.kv2[i+1]||["",""];h+=`<tr><th>${e(cellT(a[0]))}</th>${cell(a[1])}<th>${e(cellT(c[0]))}</th>${cell(c[1])}</tr>`}return h})()}</table>`
       :b.table?`<table>${b.table.head?`<tr>${b.table.head.map(h=>`<th>${e(cellT(h))}</th>`).join("")}</tr>`:""}${b.table.rows.map(r=>{const cs=Array.isArray(r)?r:r.cells;return `<tr${r.hl==="red"?' style="background:#fbe1df"':""}>${cs.map(cell).join("")}</tr>`}).join("")}</table>`
       :b.p!=null?`<p>${e(b.p).replace(/\n/g,"<br>")}</p>`:b.box?`<div style="font-size:12pt;font-weight:700;padding:8px;border:2px solid #111;margin-top:6px">${e(b.box)}</div>`
       :b.sig?`<div class="sig"><div>${e(b.sig.date||"")}<div class="line">Datum</div></div><div>${b.sig.img?`<img src="${b.sig.img}" alt="">`:""}<div class="line">${e(b.sig.label||"Unterschrift")}</div></div></div>`
@@ -1997,7 +2044,7 @@ function nextTicketNr(){const y=new Date().getFullYear(),pre=`A-${y}-`;let max=0
 function nextInv(n,prefix,field){let max=0;recs(n).forEach(([,r])=>{const m=new RegExp("^"+prefix+"-(\\d+)$").exec(r[field]||"");if(m)max=Math.max(max,+m[1])});return `${prefix}-${String(max+1).padStart(3,"0")}`}
 
 const T_ST={geplant:["Geplant","st-arbeit"],erledigt:["Erledigt","st-ok"],abgesagt:["Abgesagt","st-off"]};
-const T_ARTEN=["Einweisung Fremdfirma","Handwerkertermin","Wartung / Prüfung","Begehung","Abnahme","Besprechung","Sonstiges"];
+const T_ARTEN=["Einsatz Technik","Einweisung Fremdfirma","Handwerkertermin","Wartung / Prüfung","Begehung","Abnahme","Besprechung","Sonstiges"];
 const MODS={
   auftraege:{label:"Aufträge",single:"Auftrag",photos:true,
     fields:[{k:"nr",l:"Auftrags-Nr.",t:"ro"},{k:"titel",l:"Titel",ph:"Was ist zu tun?",wide:1},{k:"lieg",l:"Liegenschaft",t:"lieg"},{k:"anlage",l:"Anlage / Gerät",t:"anlage"},
@@ -2006,29 +2053,29 @@ const MODS={
       {k:"gemeldet",l:"Gemeldet von",ph:"z. B. Kita-Leitung"},{k:"kosten",l:"Kosten in €",t:"num"},{k:"text",l:"Beschreibung",t:"area",wide:1}],
     defaults:()=>({nr:nextTicketNr(),status:"offen",prio:"normal",erstellt:today(),log:[{at:Date.now(),t:"Auftrag angelegt"}]}),
     title:r=>r.titel,
-    filter:{label:"Status",def:"open",opts:[["open","Offene"],["over","Überfällige"],["erledigt","Erledigte"],["all","Alle"]],
-      fn:(r,f)=>f==="all"?true:f==="open"?OPEN_ST.includes(r.status):f==="over"?OPEN_ST.includes(r.status)&&r.frist&&daysUntil(r.frist)<0:r.status==="erledigt"},
+    filter:{label:"Status",def:"open",opts:[["open","Offene"],["mine","Meine (angenommen / zuständig)"],["frei","Noch nicht angenommen"],["over","Überfällige"],["erledigt","Erledigte"],["all","Alle"]],
+      fn:(r,f)=>f==="all"?true:f==="mine"?OPEN_ST.includes(r.status)&&((!!me&&r.bearb===me)||(!!meName()&&normQ(r.zust||"").includes(normQ(meName())))):f==="frei"?OPEN_ST.includes(r.status)&&!r.bearb:f==="open"?OPEN_ST.includes(r.status):f==="over"?OPEN_ST.includes(r.status)&&r.frist&&daysUntil(r.frist)<0:r.status==="erledigt"},
     sort:(a,b)=>(OPEN_ST.includes(b.status)-OPEN_ST.includes(a.status))||((a.frist||"9999")<(b.frist||"9999")?-1:(a.frist||"9999")>(b.frist||"9999")?1:0)||String(b.nr).localeCompare(String(a.nr)),
     cols:[["Nr.",r=>`<span class="mono">${esc(r.nr)}</span>`],["Auftrag",r=>`<b>${esc(r.titel||"Ohne Titel")}</b><small>${esc(liegShort(r.lieg))}${r.ort?" · "+esc(r.ort):""}</small>`],
-      ["Gewerk",r=>esc(r.kat||"–")],["Priorität",r=>`<span class="stp ${PRIO[r.prio]||""}">${esc(r.prio||"–")}</span>`],["Zuständig",r=>esc(r.zust||"–")],
+      ["Gewerk",r=>esc(r.kat||"–")],["Priorität",r=>`<span class="stp ${PRIO[r.prio]||""}">${esc(r.prio||"–")}</span>`],["Bearbeitung",r=>r.bearb?`<span class="av sm" style="background:${esc(uColor(r.bearb))}">${esc(initials(C.benutzer.map.get(r.bearb)||{name:"?"}))}</span> ${esc(uName(r.bearb)||"(nicht mehr aktiv)")}${r.zust?`<small>${esc(r.zust)}</small>`:""}`:`${OPEN_ST.includes(r.status)&&userMode()?`<span class="stp st-wartet">frei</span>`:""}${r.zust?`<small>${esc(r.zust)}</small>`:(OPEN_ST.includes(r.status)&&userMode()?"":"–")}`],
       ["Frist",r=>OPEN_ST.includes(r.status)?dueChip(r.frist):`<span class="due none">${r.frist?fmtDate(r.frist):"–"}</span>`],["Status",r=>`<span class="stp ${A_STATUS[r.status]?.[1]||""}">${A_STATUS[r.status]?.[0]||r.status}</span>`]],
-    csv:[["Nr.","nr"],["Titel","titel"],["Liegenschaft",r=>liegName(r.lieg)],["Ort","ort"],["Gewerk","kat"],["Priorität","prio"],["Status",r=>A_STATUS[r.status]?.[0]||r.status],["Zuständig","zust"],["Frist",r=>fmtDate(r.frist)],["Erstellt",r=>fmtDate(r.erstellt)],["Erledigt am",r=>fmtDate(r.abschluss?.datum)],["Kosten €","kosten"],["Beschreibung","text"],["Erledigungsbericht",r=>r.abschluss?.bericht||""]]
+    csv:[["Nr.","nr"],["Titel","titel"],["Liegenschaft",r=>liegName(r.lieg)],["Ort","ort"],["Gewerk","kat"],["Priorität","prio"],["Status",r=>A_STATUS[r.status]?.[0]||r.status],["Zuständig","zust"],["Angenommen von",r=>uName(r.bearb)],["Frist",r=>fmtDate(r.frist)],["Erstellt",r=>fmtDate(r.erstellt)],["Erledigt am",r=>fmtDate(r.abschluss?.datum)],["Kosten €","kosten"],["Beschreibung","text"],["Erledigungsbericht",r=>r.abschluss?.bericht||""]]
   },
   wartung:{label:"Wartung & Prüfungen",single:"Wartung / Prüfung",
     fields:[{k:"bez",l:"Bezeichnung",ph:"z. B. Prüfung ortsfeste Elektroanlage",wide:1},{k:"lieg",l:"Liegenschaft",t:"lieg"},{k:"anlage",l:"Anlage / Gerät",t:"anlage"},
       {k:"kat",l:"Gewerk",t:"sel",o:["",...GEWERKE]},{k:"intervall",l:"Intervall",t:"sel",o:["","1","3","6","12","24","36","48","60"],ol:{"":"–","1":"monatlich","3":"vierteljährlich","6":"halbjährlich","12":"jährlich","24":"alle 2 Jahre","36":"alle 3 Jahre","48":"alle 4 Jahre","60":"alle 5 Jahre"}},
-      {k:"letzte",l:"Zuletzt durchgeführt",t:"date"},{k:"dienst",l:"Dienstleister",ph:"z. B. Firma Brandschutz Meier"},{k:"vorlauf",l:"Auftrag anlegen (Tage vorher)",t:"num"},
-      {k:"auto",l:"Auftrag automatisch anlegen",t:"sel",o:["ja","nein"]},{k:"grundlage",l:"Grundlage / Norm",ph:"z. B. DGUV Vorschrift 3"},{k:"notiz",l:"Notiz",t:"area",wide:1}],
-    defaults:()=>({auto:"ja",vorlauf:"30",intervall:"12",hist:[]}),
+      {k:"letzte",l:"Zuletzt durchgeführt",t:"date"},{k:"dienst",l:"Dienstleister / Prüfer",ph:"z. B. Firma Brandschutz Meier"},
+      {k:"grundlage",l:"Grundlage / Norm",ph:"z. B. DGUV Vorschrift 3"},{k:"notiz",l:"Notiz",t:"area",wide:1}],
+    defaults:()=>({intervall:"12",hist:[]}),
     title:r=>r.bez,
-    filter:{label:"Fälligkeit",def:"all",opts:[["all","Alle"],["due","Fällig in 60 Tagen"],["over","Überfällig"],["missing","Ohne Termin"]],
-      fn:(r,f)=>{const n=planNext(r),d=n?daysUntil(n):null;return f==="all"?true:f==="missing"?!n:f==="over"?(n&&d<0):(n&&d<=60)}},
+    filter:{label:"Fälligkeit",def:"all",opts:[["all","Alle"],["due","Fällig in 60 Tagen"],["over","Überfällig"],["mine","Meine (angenommen)"],["frei","Fällig in 60 Tagen, nicht angenommen"],["missing","Ohne Termin"]],
+      fn:(r,f)=>{const n=planNext(r),d=n?daysUntil(n):null;return f==="all"?true:f==="missing"?!n:f==="over"?(n&&d<0):f==="mine"?(!!me&&r.bearb===me):f==="frei"?(n&&d<=60&&!r.bearb):(n&&d<=60)}},
     sort:(a,b)=>((planNext(a)||"0000")<(planNext(b)||"0000")?-1:1),
     cols:[["Wartung / Prüfung",r=>`<b>${esc(r.bez||"Ohne Bezeichnung")}</b><small>${esc(liegShort(r.lieg))}${r.anlage&&C.anlagen.map.get(r.anlage)?" · "+esc(C.anlagen.map.get(r.anlage).bez):""}</small>`],
       ["Gewerk",r=>esc(r.kat||"–")],["Intervall",r=>esc(MODS.wartung.fields[4].ol[r.intervall||""]||"–")],["Zuletzt",r=>`<span class="mono">${r.letzte?fmtDate(r.letzte):"–"}</span>`],
       ["Nächste",r=>planNext(r)?dueChip(planNext(r)):`<span class="due over">Termin fehlt</span>`],["Dienstleister",r=>esc(r.dienst||"–")],
-      ["Auftrag",r=>{const t=openTicketFor("planId",r._id);return t?`<span class="mono">${esc(t[1].nr)}</span>`:"–"}]],
-    csv:[["Bezeichnung","bez"],["Liegenschaft",r=>liegName(r.lieg)],["Gewerk","kat"],["Intervall (Monate)","intervall"],["Zuletzt",r=>fmtDate(r.letzte)],["Nächste",r=>fmtDate(planNext(r))],["Dienstleister","dienst"],["Grundlage","grundlage"],["Notiz","notiz"]]
+      ["Bearbeitung",r=>r.bearb?`<span class="av sm" style="background:${esc(uColor(r.bearb))}">${esc(initials(C.benutzer.map.get(r.bearb)||{name:"?"}))}</span> ${esc(uName(r.bearb)||"(nicht mehr aktiv)")}`:(userMode()&&planNext(r)&&daysUntil(planNext(r))<=60?`<span class="stp st-wartet">frei</span>`:"–")]],
+    csv:[["Bezeichnung","bez"],["Liegenschaft",r=>liegName(r.lieg)],["Gewerk","kat"],["Intervall (Monate)","intervall"],["Zuletzt",r=>fmtDate(r.letzte)],["Nächste",r=>fmtDate(planNext(r))],["Dienstleister","dienst"],["Angenommen von",r=>uName(r.bearb)],["Grundlage","grundlage"],["Notiz","notiz"]]
   },
   anlagen:{label:"Anlagen & Geräte",single:"Anlage / Gerät",photos:true,
     fields:[{k:"inv",l:"Inventar-Nr.",ph:"AN-001"},{k:"bez",l:"Bezeichnung",ph:"z. B. Gasbrennwertkessel",wide:1},{k:"kat",l:"Kategorie",t:"sel",o:["","Elektro","Heizung","Lüftung / Klima","Sanitär / Trinkwasser","Brandschutz","Aufzug","Spielgerät","Küche","Tor / Tür","Sonstiges"]},
@@ -2057,22 +2104,24 @@ const MODS={
     csv:[["Nr.","nr"],["Bezeichnung","bez"],["Liegenschaft",r=>liegName(r.lieg)],["Schließung","schliess"],["Exemplare","anzahl"],["Ausgegeben",r=>keyOut(r)],["Aufbewahrung","ablage"]]
   },
   taetig:{label:"Termine",single:"Termin",
-    fields:[{k:"titel",l:"Termin",ph:"z. B. Einweisung Elektro Beispiel GmbH",wide:1},{k:"datum",l:"Datum",t:"date"},{k:"zeit",l:"Von",t:"time"},{k:"bis",l:"Bis",t:"time"},
+    fields:[{k:"titel",l:"Termin / Tätigkeit",ph:"z. B. Einweisung Elektro Beispiel GmbH, Fenster streichen",wide:1},{k:"tech",l:"Mitarbeiter/in",t:"user"},{k:"datum",l:"Datum (von)",t:"date"},{k:"datumBis",l:"Bis Datum (mehrtägig)",t:"date"},{k:"zeit",l:"Uhrzeit von",t:"time"},{k:"bis",l:"Uhrzeit bis",t:"time"},
       {k:"art",l:"Art",t:"sel",o:["",...T_ARTEN]},{k:"lieg",l:"Liegenschaft",t:"lieg"},{k:"ort",l:"Treffpunkt",ph:"z. B. Haupteingang"},
       {k:"firma",l:"Firma / Ansprechpartner",ph:"z. B. Elektro Beispiel GmbH, Herr Muster"},{k:"kontakt",l:"Kontakt",ph:"Telefon oder E-Mail"},
       {k:"status",l:"Status",t:"sel",o:Object.keys(T_ST),ol:Object.fromEntries(Object.entries(T_ST).map(([k,v])=>[k,v[0]]))},{k:"von",l:"Eingetragen von / Quelle",ph:"z. B. per Telefon"},
       {k:"notiz",l:"Notiz",t:"area",wide:1}],
     defaults:()=>({datum:today(),status:"geplant",art:"",uid:rid()}),
-    title:r=>r.titel||(r.text?r.text.slice(0,60):""),
-    filter:{label:"Zeitraum",def:"kommend",opts:[["kommend","Kommende"],["heute","Heute"],["woche","Nächste 7 Tage"],["vergangen","Vergangene"],["all","Alle"]],
-      fn:(r,f)=>{const d=daysUntil(r.datum);if(f==="all")return true;if(d==null)return f==="kommend";
-        if(f==="vergangen")return d<0;if(r.status==="abgesagt"&&f!=="all")return false;return f==="heute"?d===0:f==="woche"?d>=0&&d<=7:d>=0}},
+    title:r=>r.titel||(r.text?r.text.slice(0,60):"")||(r.tech?"Einsatz "+uName(r.tech):""),
+    filter:{label:"Zeitraum",def:"kommend",opts:[["kommend","Kommende"],["mine","Meine Einsätze"],["heute","Heute"],["woche","Nächste 7 Tage"],["vergangen","Vergangene"],["all","Alle"]],
+      fn:(r,f)=>{const s=daysUntil(r.datum),e=daysUntil(tEnd(r));if(f==="all")return true;if(s==null)return f==="kommend";
+        if(f==="vergangen")return e<0;if(r.status==="abgesagt")return false;if(f==="mine")return !!me&&r.tech===me&&e>=0;
+        return f==="heute"?(s<=0&&e>=0):f==="woche"?(e>=0&&s<=7):e>=0}},
     sort:(a,b)=>MS.taetig&&MS.taetig.f==="vergangen"?tKey(b).localeCompare(tKey(a)):tKey(a).localeCompare(tKey(b)),
-    cols:[["Datum",r=>`<span class="mono">${dayLabel(r.datum)||"–"}</span>`],["Zeit",r=>`<span class="mono">${esc(tZeit(r))}</span>`],
+    cols:[["Datum",r=>`<span class="mono">${dayLabel(r.datum)||"–"}</span>${tEnd(r)!==r.datum?`<small class="mono">bis ${dayLabel(tEnd(r))}</small>`:""}`],["Zeit",r=>`<span class="mono">${esc(tZeit(r))}</span>`],
+      ["Mitarbeiter/in",r=>r.tech?`<span class="av sm" style="background:${esc(uColor(r.tech))}">${esc(initials(C.benutzer.map.get(r.tech)||{name:"?"}))}</span> ${esc(uName(r.tech)||"(gelöscht)")}`:"–"],
       ["Termin",r=>`<b>${esc(MODS.taetig.title(r)||"Ohne Titel")}</b><small>${esc(r.art||r.kat||"")}${r.ort?" · "+esc(r.ort):""}</small>`],
       ["Liegenschaft",r=>esc(liegShort(r.lieg)||"–")],["Firma / Ansprechpartner",r=>`${esc(r.firma||"–")}${r.kontakt?`<small>${esc(r.kontakt)}</small>`:""}`],
       ["Status",r=>{const s=T_ST[r.status]||T_ST.geplant,past=r.status!=="erledigt"&&r.status!=="abgesagt"&&daysUntil(r.datum)<0;return `<span class="stp ${past?"st-wartet":s[1]}">${past?"Vorbei":s[0]}</span>`}]],
-    csv:[["Datum",r=>fmtDate(r.datum)],["Zeit",r=>tZeit(r)],["Termin",r=>MODS.taetig.title(r)],["Art",r=>r.art||r.kat||""],["Liegenschaft",r=>liegName(r.lieg)],["Treffpunkt","ort"],
+    csv:[["Datum",r=>fmtDate(r.datum)+(tEnd(r)!==r.datum?" – "+fmtDate(tEnd(r)):"")],["Zeit",r=>tZeit(r)],["Termin",r=>MODS.taetig.title(r)],["Mitarbeiter/in",r=>uName(r.tech)],["Art",r=>r.art||r.kat||""],["Liegenschaft",r=>liegName(r.lieg)],["Treffpunkt","ort"],
       ["Firma / Ansprechpartner","firma"],["Kontakt","kontakt"],["Status",r=>(T_ST[r.status]||T_ST.geplant)[0]],["Eingetragen von","von"],["Notiz",r=>r.notiz||r.text||""]]
   },
   vertraege:{label:"Verträge",single:"Vertrag",
@@ -2193,10 +2242,109 @@ let detailOn=false;
 const isNarrow=()=>window.matchMedia("(max-width:900px)").matches;
 function applyDetail(){const a=document.querySelector(".app");if(a)a.classList.toggle("detail",!!(detailOn&&active&&objs.has(active)))}
 
+/* =====================================================================
+   Benutzer, Rollen, Anmeldung
+   Benutzer liegen in der Sammlung „benutzer“ und reisen mit Abgleich/Sicherung mit.
+   Solange kein Benutzer angelegt ist, arbeitet FMS wie bisher ohne Anmeldung.
+   Die PIN schützt vor Verwechslungen, nicht vor jemandem, der das Gerät in der Hand hat.
+   ===================================================================== */
+const ROLLEN={admin:["Administrator","Alles, auch Benutzer verwalten"],verwaltung:["Verwaltung","Alles außer Benutzerverwaltung"],technik:["Technik","Aufträge, Prüfungen, Zähler, Schlüssel, Termine – kein Löschen, Verträge nur lesen"]};
+const U_FARBEN=["#0B6E79","#B3261E","#2E7D4F","#9A6700","#5B4BB7","#C05A12","#1F6FB2","#8E3E8E","#3C6E2F","#A02F5A"];
+const ME_KEY=APP_ID+"-angemeldet";
+let me=null,loginSt={sel:null,err:""},ud=null;
+const users=()=>C.benutzer?[...C.benutzer.map.entries()]:[];
+const activeUsers=()=>users().filter(([,u])=>u.aktiv!==false).sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name),"de"));
+const userMode=()=>activeUsers().length>0;
+const meU=()=>me&&C.benutzer&&C.benutzer.map.get(me)||null;
+const meName=()=>meU()?.name||"";
+const uName=id=>(C.benutzer&&C.benutzer.map.get(id)?.name)||"";
+const uColor=id=>(C.benutzer&&C.benutzer.map.get(id)?.farbe)||"#5A6A75";
+const initials=u=>(u.kuerzel||String(u.name||"?").split(/\s+/).map(w=>w[0]).join("").slice(0,2)).toUpperCase();
+function can(p){if(!userMode())return true;const u=meU();if(!u)return false;const r=u.rolle||"technik";
+  if(r==="admin")return true;if(p==="users")return false;if(r==="verwaltung")return true;
+  return !["delete","vertraege","restore","backupImport"].includes(p)}
+function denied(t){setSave("err",t||`Dafür fehlen die Rechte (Rolle: ${ROLLEN[meU()?.rolle]?.[0]||"–"})`)}
+/* gleiche Berechnung auf jedem Gerät (kein crypto.subtle, das per file:// nicht überall verfügbar ist) */
+function pinHash(uid,pin){let s="fms|"+uid+"|"+pin,h1=0xdeadbeef,h2=0x41c6ce57;
+  for(let k=0;k<500;k++){for(let i=0;i<s.length;i++){const c=s.charCodeAt(i);h1=Math.imul(h1^c,2654435761);h2=Math.imul(h2^c,1597334677)}
+    h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);s=h1.toString(36)+h2.toString(36)}
+  return s}
+function login(id){me=id;try{localStorage.setItem(ME_KEY,id)}catch(e){}loginSt={sel:null,err:""};renderLogin();renderNav();if(view==="lieg")renderSheet();else renderMod();setSave("ok","Angemeldet: "+meName())}
+function logout(){me=null;try{localStorage.removeItem(ME_KEY)}catch(e){}closeImport();renderLogin()}
+function userRefresh(){if(LAD_ONLY)return;if(me&&(!meU()||meU().aktiv===false))me=null;
+  if(!me){try{const s=localStorage.getItem(ME_KEY);const u=s&&C.benutzer.map.get(s);if(u&&u.aktiv!==false)me=s}catch(e){}}
+  renderLogin()}
+function renderUserChip(){const el=$("#userChip");if(!el)return;if(LAD_ONLY){el.hidden=true;return}el.hidden=false;const u=meU();
+  el.innerHTML=u?`<span class="av" style="background:${esc(u.farbe||U_FARBEN[0])}">${esc(initials(u))}</span><span class="un">${esc(u.name)}</span>`:`<span class="av" style="background:var(--muted)">+</span><span class="un">Benutzer</span>`;
+  el.title=u?`Angemeldet: ${u.name} (${ROLLEN[u.rolle]?.[0]||""})`:"Benutzer einrichten"}
+function renderLogin(){const el=$("#login");renderUserChip();if(!el)return;
+  if(LAD_ONLY||!userMode()||meU()){el.hidden=true;document.body.classList.remove("locked");return}
+  el.hidden=false;document.body.classList.add("locked");const st=loginSt,su=st.sel&&C.benutzer.map.get(st.sel);
+  el.innerHTML=`<div class="lg-box" role="dialog" aria-modal="true" aria-labelledby="lgT"><div class="lg-brand">${esc(APP_LABEL)}</div><h1 id="lgT">Wer arbeitet gerade?</h1>
+    <div class="lg-users">${activeUsers().map(([id,u])=>`<button type="button" class="lg-u${st.sel===id?" on":""}" data-lg="${esc(id)}"><span class="av" style="background:${esc(u.farbe||U_FARBEN[0])}">${esc(initials(u))}</span><b>${esc(u.name)}</b><small>${esc(ROLLEN[u.rolle]?.[0]||"")}</small></button>`).join("")}</div>
+    ${su?`<form class="lg-pin" id="lgForm"><label for="lgPin">PIN für ${esc(su.name)}</label><div class="lg-row"><input id="lgPin" type="password" inputmode="numeric" autocomplete="off" maxlength="8"><button class="btn pri" type="submit">Anmelden</button></div>${st.err?`<p class="msg err">${esc(st.err)}</p>`:""}</form>`:""}
+    <p class="note">Die PIN schützt vor Verwechslungen. Gerätesperre (Code/Face ID) bitte trotzdem nutzen.</p></div>`;
+  if(su)setTimeout(()=>{const i=$("#lgPin");if(i)i.focus()},30)}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-lg]");if(!b)return;const id=b.dataset.lg,u=C.benutzer.map.get(id);if(!u)return;
+  if(!u.pin)return login(id);loginSt={sel:id,err:""};renderLogin()});
+document.addEventListener("submit",e=>{if(e.target.id!=="lgForm")return;e.preventDefault();const u=C.benutzer.map.get(loginSt.sel);if(!u)return;
+  const p=$("#lgPin").value.trim();if(pinHash(loginSt.sel,p)===u.pin)login(loginSt.sel);else{loginSt.err="PIN stimmt nicht.";renderLogin()}});
+
+/* Benutzerverwaltung */
+function openUsers(){if(userMode()&&!meU())return;ud={edit:userMode()?null:"new",msg:""};$("#imp").hidden=false;renderUsers()}
+function renderUsers(){const s=ud;if(!s)return;const isAdm=can("users"),first=!userMode();
+  const list=users().sort((a,b)=>(a[1].aktiv===false)-(b[1].aktiv===false)||String(a[1].name).localeCompare(String(b[1].name),"de"));
+  const e=s.edit==="new"?{rolle:first?"admin":"technik",farbe:U_FARBEN[users().length%U_FARBEN.length],aktiv:true}:s.edit?C.benutzer.map.get(s.edit):null;
+  const u=meU();
+  $("#imp").innerHTML=`<div class="dlg" role="dialog" aria-modal="true" aria-labelledby="udT" style="max-width:760px">
+    <div class="dlg-h"><div><h2 id="udT">${first?"Benutzer einrichten":isAdm?"Benutzerverwaltung":"Mein Konto"}</h2><p>${first?"Lege zuerst dein eigenes Konto als Administrator an. Ab dann meldet sich jede Person mit Namen und PIN an, und die Historie zeigt, wer was angelegt, geändert oder erledigt hat.":"Benutzer reisen mit dem Abgleich auf alle Geräte. Ausgeschiedene Personen bitte deaktivieren statt löschen, damit die Historie nachvollziehbar bleibt."}</p></div>
+      <button class="x" type="button" data-ud="close" aria-label="Schließen">×</button></div>
+    <div class="dlg-b">
+      ${u?`<div class="lock" style="justify-content:space-between;flex-wrap:wrap"><span>Angemeldet als <b>${esc(u.name)}</b> · ${esc(ROLLEN[u.rolle]?.[0]||"")}</span><span class="actions"><button class="btn sm" type="button" data-ud="pin" data-id="${esc(me)}">Eigene PIN ändern</button><button class="btn sm" type="button" data-ud="logout">Benutzer wechseln</button></span></div>`:""}
+      ${isAdm&&!first&&!e?`<div class="tw"><table class="mt" style="min-width:560px"><thead><tr><th>Name</th><th>Rolle</th><th>PIN</th><th>Status</th><th></th></tr></thead><tbody>
+        ${list.map(([id,x])=>`<tr><td><span class="av sm" style="background:${esc(x.farbe||U_FARBEN[0])}">${esc(initials(x))}</span> <b>${esc(x.name)}</b>${x.email?`<small>${esc(x.email)}</small>`:""}</td><td>${esc(ROLLEN[x.rolle]?.[0]||x.rolle||"")}</td><td>${x.pin?"gesetzt":"–"}</td>
+          <td><span class="stp ${x.aktiv===false?"st-off":"st-ok"}">${x.aktiv===false?"deaktiviert":"aktiv"}</span></td><td><button class="btn sm" type="button" data-ud="edit" data-id="${esc(id)}">Bearbeiten</button></td></tr>`).join("")}</tbody></table></div>
+        <div><button class="btn pri" type="button" data-ud="new">+ Benutzer</button></div>`:""}
+      ${e?`<div class="signbox"><h3>${s.edit==="new"?(first?"Dein Administrator-Konto":"Neuer Benutzer"):"Benutzer bearbeiten"}</h3><div class="form plain">
+        <div class="fld"><label for="ud-name">Name</label><input id="ud-name" value="${esc(e.name||"")}" placeholder="Vor- und Nachname"${s.edit===me&&!isAdm?" readonly":""}></div>
+        <div class="fld"><label for="ud-kz">Kürzel</label><input id="ud-kz" value="${esc(e.kuerzel||"")}" maxlength="3" placeholder="z. B. SH"></div>
+        <div class="fld"><label for="ud-mail">E-Mail (optional)</label><input id="ud-mail" type="email" value="${esc(e.email||"")}"></div>
+        <div class="fld"><label for="ud-rolle">Rolle</label><select id="ud-rolle"${first||!isAdm?" disabled":""}>${Object.entries(ROLLEN).map(([k,v])=>`<option value="${k}"${e.rolle===k?" selected":""}>${v[0]} – ${v[1]}</option>`).join("")}</select></div>
+        <div class="fld"><label for="ud-pin">${e.pin?"Neue PIN (leer = unverändert)":"PIN (4–8 Ziffern, empfohlen)"}</label><input id="ud-pin" type="password" inputmode="numeric" maxlength="8" autocomplete="new-password"></div>
+        <div class="fld"><span class="lbl">Farbe im Kalender</span><div class="swatches">${U_FARBEN.map(c=>`<label class="sw" style="background:${c}"><input type="radio" name="ud-farbe" value="${c}"${e.farbe===c?" checked":""}><span></span></label>`).join("")}</div></div>
+        ${!first&&isAdm?`<label class="chk"><input type="checkbox" id="ud-aktiv"${e.aktiv!==false?" checked":""}> aktiv (kann sich anmelden)</label>${e.pin?`<label class="chk"><input type="checkbox" id="ud-nopin"> PIN entfernen</label>`:""}`:""}</div>
+        <div class="actions" style="justify-content:flex-end">${first?"":`<button class="btn" type="button" data-ud="cancel">Abbrechen</button>`}<button class="btn pri" type="button" data-ud="save">Speichern</button></div></div>`:""}
+      ${s.msg?`<div class="msg ${s.msg.split(":")[0]}">${esc(s.msg.split(/:(.*)/s)[1])}</div>`:""}
+    </div>
+    <div class="dlg-f"><span class="note">${first?"":`${activeUsers().length} aktive Benutzer`}</span><div class="actions"><button class="btn" type="button" data-ud="close">Schließen</button></div></div></div>`}
+function udClick(e){const b=e.target.closest("[data-ud]");if(!b||!ud)return;const a=b.dataset.ud,s=ud;
+  if(a==="close"){ud=null;return closeImport()}
+  if(a==="logout")return logout();
+  if(a==="new"){if(!can("users"))return denied();s.edit="new";s.msg="";return renderUsers()}
+  if(a==="edit"){if(!can("users"))return denied();s.edit=b.dataset.id;s.msg="";return renderUsers()}
+  if(a==="pin"){s.edit=b.dataset.id;s.msg="";return renderUsers()}
+  if(a==="cancel"){s.edit=null;s.msg="";return renderUsers()}
+  if(a==="save"){const first=!userMode(),isNew=s.edit==="new",id=isNew?newRecId("benutzer"):s.edit,old=isNew?null:C.benutzer.map.get(id);
+    if(!isNew&&!old)return;if(!isNew&&id!==me&&!can("users"))return denied();
+    const name=$("#ud-name").value.trim(),pin=$("#ud-pin").value.trim(),rolle=first?"admin":($("#ud-rolle").value||"technik"),aktiv=$("#ud-aktiv")?$("#ud-aktiv").checked:true;
+    if(!name){s.msg="err:Bitte einen Namen eintragen.";return renderUsers()}
+    if(users().some(([k,x])=>k!==id&&x.aktiv!==false&&normQ(x.name)===normQ(name))){s.msg="err:Diesen Namen gibt es schon.";return renderUsers()}
+    if(pin&&!/^\d{4,8}$/.test(pin)){s.msg="err:Die PIN muss aus 4 bis 8 Ziffern bestehen.";return renderUsers()}
+    const admins=activeUsers().filter(([k,x])=>x.rolle==="admin"&&k!==id).length;
+    if(!first&&(rolle!=="admin"||!aktiv)&&old&&old.rolle==="admin"&&!admins){s.msg="err:Es muss mindestens ein aktiver Administrator bleiben.";return renderUsers()}
+    const r=Object.assign(old||{angelegt:Date.now(),angelegtVon:meName()},{name,kuerzel:$("#ud-kz").value.trim().toUpperCase(),email:$("#ud-mail").value.trim(),
+      rolle:can("users")||first?rolle:(old?old.rolle:"technik"),aktiv:can("users")||first?aktiv:(old?old.aktiv:true),farbe:(document.querySelector('input[name="ud-farbe"]:checked')||{}).value||(old&&old.farbe)||U_FARBEN[0]});
+    if(pin)r.pin=pinHash(id,pin);else if($("#ud-nopin")&&$("#ud-nopin").checked)delete r.pin;
+    C.benutzer.map.set(id,r);cTouch("benutzer",id);
+    histAdd({act:isNew?"angelegt":"geändert",area:"Benutzer",label:`${name} (${ROLLEN[r.rolle]?.[0]||""})${r.aktiv===false?" – deaktiviert":""}`});
+    if(first){login(id);ud={edit:null,msg:"ok:Dein Konto ist angelegt. Lege jetzt die weiteren Benutzer an."};$("#imp").hidden=false;return renderUsers()}
+    s.edit=null;s.msg=`ok:${name} gespeichert.`;renderUserChip();return renderUsers()}}
+document.addEventListener("click",e=>{if(e.target.closest("#userChip"))openUsers()});
+
 /* ---------- Merkliste: Personen & Firmen zum Auswählen ----------
    Die Vorschläge werden aus den vorhandenen Daten gebildet (Aufträge, Wartung, Termine, Schlüssel, Prüfungen)
    und reisen deshalb mit Sicherung und Abgleich automatisch mit. */
-const MEM_SEL='[data-rf="zust"],[data-rf="gemeldet"],[data-rf="dienst"],[data-rf="firma"],[data-rf="partner"],#sg-name,#hx-von,#ka-an,#ka-firma,#f-bearbeiter,[data-prf="pruefer"]';
+const MEM_SEL='[data-rf="zust"],[data-rf="gemeldet"],[data-rf="dienst"],[data-rf="firma"],[data-rf="partner"],#sg-name,#hx-von,#ka-an,#ka-firma,#ka-von,#kr-von,#f-bearbeiter,[data-prf="pruefer"]';
 const MEM_HIDE_KEY=APP_ID+"-merkliste-aus";
 function memHidden(){try{return new Set(JSON.parse(localStorage.getItem(MEM_HIDE_KEY)||"[]"))}catch(e){return new Set()}}
 function memSetHidden(h){try{localStorage.setItem(MEM_HIDE_KEY,JSON.stringify([...h]))}catch(e){}}
@@ -2208,9 +2356,10 @@ function memValues(){
   recs("wartung").forEach(([,p])=>{add(p.dienst,p.updated);(p.hist||[]).forEach(h=>add(h.von,p.updated))});
   recs("taetig").forEach(([,t])=>add(t.firma,t.updated));
   recs("vertraege").forEach(([,v])=>add(v.partner,v.updated));
-  recs("schluessel").forEach(([,k])=>(k.ausgaben||[]).forEach(a=>{add(a.an,a.at);add(a.firma,a.at)}));
+  recs("schluessel").forEach(([,k])=>(k.ausgaben||[]).forEach(a=>{add(a.an,a.at);add(a.firma,a.at);add(a.von,a.at);if(a.zur)add(a.zur.von,a.zur.at)}));
   objs.forEach(o=>{add(o.bearbeiter,o.updated);["leiter","tritt"].forEach(s=>(o.rows[s]||[]).forEach(r=>(r.pruef||[]).forEach(p=>add(p.pruefer,+p.done||0))))});
   try{add(JSON.parse(localStorage.getItem("begehung-pruefer")||"{}").pruefer,Date.now())}catch(e){}
+  activeUsers().forEach(([,u])=>{add(u.name,Date.now());const e=m.get(normQ(u.name));if(e)e.n+=1000});
   const hid=memHidden();
   return [...m.entries()].filter(([k])=>!hid.has(k)).map(([,e])=>e).sort((a,b)=>b.n-a.n||b.at-a.at);
 }
@@ -2412,6 +2561,7 @@ $("#scanBtn").addEventListener("click",openScan);
 let collTimer=null,autoTimer=null;
 function onCollChange(n){
   if(LAD_ONLY)return;
+  if(n==="*"||n==="benutzer")userRefresh();
   clearTimeout(collTimer);collTimer=setTimeout(()=>{
     renderNav();
     const a=document.activeElement;
@@ -2422,7 +2572,7 @@ function onCollChange(n){
 document.addEventListener("click",e=>{const b=e.target.closest("[data-view]");if(b&&!e.target.closest("#imp")){setView(b.dataset.view)}});
 
 /* ---------- Automatische Aufträge aus Wartungsplänen ---------- */
-function autoGenerate(){
+function autoGenerate(){return; /* Wartungen erzeugen keine Aufträge mehr – Aufträge sind nur Störungen/Reparaturen */
   if(LAD_ONLY||!C.wartung.loaded||!C.auftraege.loaded)return;
   let made=0;
   recs("wartung").forEach(([pid,p])=>{
@@ -2444,7 +2594,7 @@ function fixTicketNumbers(){const by={};let n=0;
     g.slice(1).forEach(([id,t])=>{const old=t.nr;t.nr=nextTicketNr();addLog(t,`Auftrags-Nr. ${old} war doppelt vergeben (iPad/PC) – neu: ${t.nr}`);cTouch("auftraege",id);n++})});
   if(n)setSave("ok",`${n} doppelte Auftragsnummer${n>1?"n":""} neu vergeben`);return n}
 function createTicket(data,logTxt,fixedId){
-  const id=fixedId||newRecId("auftraege");const t=Object.assign(MODS.auftraege.defaults(),data);
+  const id=fixedId||newRecId("auftraege");const t=Object.assign(MODS.auftraege.defaults(),data);if(meName()&&!t.angelegtVon){t.angelegtVon=meName();t.angelegtAm=Date.now()}
   if(logTxt)t.log=[{at:Date.now(),t:logTxt}];
   C.auftraege.map.set(id,t);cTouch("auftraege",id);
   if(t.titel)histOpen["rec:auftraege:"+id]={id:histAdd(Object.assign({act:"angelegt",fields:[],note:logTxt||""},recInfo("auftraege",id,t))),at:Date.now()};
@@ -2516,13 +2666,14 @@ document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.matches&&e.
 function agendaItems(){
   const it=[];
   tickets().forEach(([id,t])=>{if(OPEN_ST.includes(t.status)&&t.frist)it.push({d:t.frist,type:"Auftrag",cls:"tk",label:`${t.nr} ${t.titel||""}`,lieg:t.lieg,open:`auftraege:${id}`})});
-  recs("wartung").forEach(([id,p])=>{const n=planNext(p);if(n&&!openTicketFor("planId",id))it.push({d:n,type:"Wartung",cls:"wt",label:p.bez||"Wartung",lieg:p.lieg,open:`wartung:${id}`})});
+  recs("wartung").forEach(([id,p])=>{const n=planNext(p);if(n&&!openTicketFor("planId",id)){const u=p.bearb&&C.benutzer&&C.benutzer.map.get(p.bearb);it.push({d:n,type:"Wartung",cls:"wt",label:`${u?initials(u)+": ":""}${p.bez||"Wartung"}`,lieg:p.lieg,open:`wartung:${id}`})}});
   recs("schluessel").forEach(([id,k])=>keyOpen(k).forEach(a=>{if(a.bis)it.push({d:a.bis,type:"Schlüssel",cls:"ks",label:`Rückgabe ${k.bez||k.nr}: ${a.an}`,lieg:k.lieg,open:`schluessel:${id}`})}));
   recs("vertraege").forEach(([id,v])=>{if(v.status==="beendet")return;const k=vtKuend(v),e=vtEnde(v);
     if(k&&daysUntil(k)>=-7)it.push({d:k,type:"Vertrag",cls:"vt",label:`Kündigen bis: ${v.bez||"Vertrag"}${v.partner?" ("+v.partner+")":""}`,lieg:v.lieg,open:`vertraege:${id}`});
     else if(e&&!(+v.verl)&&daysUntil(e)>=0)it.push({d:e,type:"Vertrag",cls:"vt",label:`Vertragsende: ${v.bez||"Vertrag"}`,lieg:v.lieg,open:`vertraege:${id}`})});
-  recs("taetig").forEach(([id,t])=>{if(t.datum&&t.status!=="abgesagt"&&t.status!=="erledigt"&&daysUntil(t.datum)>=0)it.push({d:t.datum,type:"Termin",cls:"tm",label:`${t.zeit?t.zeit+" ":""}${MODS.taetig.title(t)||"Termin"}`,lieg:t.lieg,open:`taetig:${id}`,k:t.zeit||""})});
-  objs.forEach((o,oid)=>["leiter","tritt"].forEach(sec=>(o.rows[sec]||[]).forEach(r=>{const n=ladNext(r);if(n)it.push({d:n,type:sec==="leiter"?"Leiter":"Tritt",cls:"ld",label:`Prüfung ${r.inv||r.art||""}`,lieg:oid,open:`ladder:${oid}|${sec}`})})));
+  recs("taetig").forEach(([id,t])=>{const e=tEnd(t);if(t.datum&&t.status!=="abgesagt"&&t.status!=="erledigt"&&daysUntil(e)>=0){const u=t.tech&&C.benutzer.map.get(t.tech);
+    it.push({d:t.datum<today()?today():t.datum,start:t.datum,end:e,type:t.tech?"Einsatz":"Termin",cls:"tm",col:u?u.farbe:"",label:`${u?initials(u)+": ":""}${t.zeit?t.zeit+" ":""}${MODS.taetig.title(t)||"Termin"}${e!==t.datum?` (bis ${fmtDate(e)})`:""}`,lieg:t.lieg,open:`taetig:${id}`,k:t.zeit||""})}});
+  objs.forEach((o,oid)=>["leiter","tritt"].forEach(sec=>(o.rows[sec]||[]).forEach(r=>{const n=ladNext(r);const bu=r.bearb&&C.benutzer&&C.benutzer.map.get(r.bearb);if(n)it.push({d:n,type:sec==="leiter"?"Leiter":"Tritt",cls:"ld",label:`${bu?initials(bu)+": ":""}Prüfung ${r.inv||r.art||""}`,lieg:oid,open:`ladder:${oid}|${sec}`})})));
   return it.sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:(a.k||"99")<(b.k||"99")?-1:1);
 }
 function dashHTML(){
@@ -2538,12 +2689,12 @@ function dashHTML(){
     return {id,o,t,w,m,l,sum:t+w+m+l}}).filter(x=>x.sum).sort((a,b)=>b.sum-a.sum);
   const tile=(l,v,sub,cls,go)=>`<button type="button" class="tile ${cls||""}" data-view="${go}"><span class="tl">${l}</span><span class="tv">${v}</span><span class="ts">${sub}</span></button>`;
   return `<section class="dash">
-    <div class="mhead"><div><h1>Übersicht</h1><p class="note">${new Date().toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long",year:"numeric"})} · ${objs.size} Liegenschaften</p></div>
-      <div class="actions">${PWA?`<button class="btn" type="button" data-sy="open" title="Letzter Abgleich: ${syncWhen()}">Abgleichen</button>`:""}<button class="btn" type="button" data-mact="ics" title="Alle Fristen der nächsten 13 Monate mit Erinnerung für iPhone-, iPad- oder Outlook-Kalender">Fristen → Kalender</button><button class="btn" type="button" data-mact="mailimp">Aus E-Mail</button><button class="btn pri" type="button" data-mact="new" data-quick="1">+ Auftrag</button></div></div>
+    <div class="mhead"><div><h1>Übersicht</h1><p class="note">${new Date().toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long",year:"numeric"})} · ${objs.size} Liegenschaften · <span title="Stand der App">Version ${FMS_VERSION}</span></p></div>
+      <div class="actions"><a class="btn" href="Bedienungsanleitung.html" target="_blank" rel="noopener" title="Bedienungsanleitung öffnen">Anleitung</a>${PWA?`<button class="btn" type="button" data-sy="open" title="Letzter Abgleich: ${syncWhen()}">Abgleichen</button>`:""}<button class="btn" type="button" data-mact="ics" title="Alle Fristen der nächsten 13 Monate mit Erinnerung für iPhone-, iPad- oder Outlook-Kalender">Fristen → Kalender</button><button class="btn" type="button" data-mact="mailimp">Aus E-Mail</button><button class="btn pri" type="button" data-mact="new" data-quick="1">+ Auftrag</button></div></div>
     ${bkBannerHTML()}
     <div class="tiles">
-      ${tile("Offene Aufträge",ot.length,tov?`${tov} überfällig`:"keine überfällig",tov?"crit":"","auftraege")}
-      ${tile("Wartung & Prüfungen",pdue,`fällig in 30 Tagen${pmiss?` · ${pmiss} ohne Termin`:""}`,pdue||pmiss?"warn":"","wartung")}
+      ${tile("Offene Aufträge",ot.length,[tov?`${tov} überfällig`:"keine überfällig",userMode()?`${ot.filter(([,t])=>!t.bearb).length} nicht angenommen`:""].filter(Boolean).join(" · "),tov?"crit":"","auftraege")}
+      ${tile("Wartung & Prüfungen",pdue,`fällig in 30 Tagen${userMode()&&pdue?` · ${plans.filter(([,p])=>{const n=planNext(p);return n&&daysUntil(n)<=30&&!p.bearb}).length} nicht angenommen`:""}${pmiss?` · ${pmiss} ohne Termin`:""}`,pdue||pmiss?"warn":"","wartung")}
       ${tile("Mängel aus Begehung",maengel,"Zustand 3 und 4",maengel?"warn":"","lieg")}
       ${tile("Leitern & Tritte",ladBad,`von ${lad} offen / gesperrt`,ladBad?"crit":"","lieg")}
       ${tile("Schlüssel ausgegeben",kOut,kOver?`${kOver} Rückgabe überfällig`:"keine überfällig",kOver?"crit":"","schluessel")}
@@ -2553,7 +2704,7 @@ function dashHTML(){
     </div>
     <div class="dgrid">
       <div class="modcard"><div class="mhead sm"><h2>Anstehend in den nächsten 30 Tagen</h2></div>
-        ${soon.length?`<ul class="agenda">${soon.slice(0,14).map(x=>`<li data-open="${x.open}" tabindex="0"><span class="ad ${daysUntil(x.d)<0?"over":""}">${fmtDate(x.d)}</span><span class="at ${x.cls}">${x.type}</span><span class="al"><b>${esc(x.label)}</b><small>${esc(liegShort(x.lieg))}</small></span></li>`).join("")}</ul>${soon.length>14?`<p class="note">… und ${soon.length-14} weitere im Kalender</p>`:""}`
+        ${soon.length?`<ul class="agenda">${soon.slice(0,14).map(x=>`<li data-open="${x.open}" tabindex="0"><span class="ad ${daysUntil(x.d)<0?"over":""}">${fmtDate(x.d)}</span><span class="at ${x.cls}${x.col?" us":""}"${x.col?` style="background:${esc(x.col)};color:#fff"`:""}>${x.type}</span><span class="al"><b>${esc(x.label)}</b><small>${esc(liegShort(x.lieg))}</small></span></li>`).join("")}</ul>${soon.length>14?`<p class="note">… und ${soon.length-14} weitere im Kalender</p>`:""}`
         :`<div class="empty">Nichts fällig. Prüftermine legst du unter „Wartung & Prüfungen“ an.</div>`}
       </div>
       <div class="modcard">${calHTML(ag)}</div>
@@ -2567,10 +2718,10 @@ function dashHTML(){
 }
 function calHTML(ag){
   const [y,m]=calMonth.split("-").map(Number),first=new Date(y,m-1,1),start=new Date(first);start.setDate(1-((first.getDay()+6)%7));
-  const by={};ag.forEach(x=>{(by[x.d]=by[x.d]||[]).push(x)});const t=today();let cells="";
+  const by={};ag.forEach(x=>{let d=x.start||x.d;const e=x.end||x.d;let n=0;while(d<=e&&n++<62){(by[d]=by[d]||[]).push(x);const [yy,mm,dd]=d.split("-").map(Number);d=ISO(new Date(yy,mm-1,dd+1))}});const t=today();let cells="";
   for(let i=0;i<42;i++){const d=new Date(start);d.setDate(start.getDate()+i);const iso=ISO(d),its=by[iso]||[],out=d.getMonth()!==m-1;
     if(i===35&&out)break;
-    cells+=`<div class="cd${out?" out":""}${iso===t?" today":""}"><span class="cn">${d.getDate()}</span>${its.slice(0,3).map(x=>`<span class="ce ${x.cls}" data-open="${x.open}" title="${esc(x.type+": "+x.label)}">${esc(x.label)}</span>`).join("")}${its.length>3?`<span class="cm">+${its.length-3}</span>`:""}</div>`}
+    cells+=`<div class="cd${out?" out":""}${iso===t?" today":""}"><span class="cn">${d.getDate()}</span>${its.slice(0,3).map(x=>`<span class="ce ${x.cls}${x.col?" us":""}"${x.col?` style="background:${esc(x.col)}"`:""} data-open="${x.open}" title="${esc(x.type+": "+x.label)}">${esc(x.label)}</span>`).join("")}${its.length>3?`<span class="cm">+${its.length-3}</span>`:""}</div>`}
   return `<div class="mhead sm"><h2>${first.toLocaleDateString("de-DE",{month:"long",year:"numeric"})}</h2>
     <div class="actions"><button class="btn sm" type="button" data-mact="calprev" aria-label="Vorheriger Monat">‹</button><button class="btn sm" type="button" data-mact="calnext" aria-label="Nächster Monat">›</button></div></div>
     <div class="cal"><div class="cw">Mo</div><div class="cw">Di</div><div class="cw">Mi</div><div class="cw">Do</div><div class="cw">Fr</div><div class="cw">Sa</div><div class="cw">So</div>${cells}</div>
@@ -2579,7 +2730,7 @@ function calHTML(ag){
 
 /* ---------- Datensatz bearbeiten ---------- */
 let recDlg=null; // {m,id,isNew,ui:{}}
-function newRec(m,pre){const id=newRecId(m);const r=Object.assign(MODS[m].defaults(),pre||{});C[m].map.set(id,r);cTouch(m,id);openRec(m,id,true)}
+function newRec(m,pre){if(m==="vertraege"&&!can("vertraege"))return denied("Verträge anlegen dürfen nur Verwaltung und Administratoren");const id=newRecId(m);const r=Object.assign(MODS[m].defaults(),pre||{});if(meName()){r.angelegtVon=meName();r.angelegtAm=Date.now()}C[m].map.set(id,r);cTouch(m,id);openRec(m,id,true)}
 function openRec(m,id,isNew){if(!C[m].map.has(id))return;recDlg={m,id,isNew:!!isNew,ui:{}};$("#imp").hidden=false;renderRec();
   if(isNew){const f=document.querySelector("#imp [data-rf]:not([disabled])");if(f&&f.tagName==="INPUT"&&!f.readOnly)f.focus();else{const g=document.querySelector('#imp [data-rf="titel"],#imp [data-rf="bez"],#imp [data-rf="text"]');if(g)g.focus()}}}
 function recField(f,r){
@@ -2591,6 +2742,7 @@ function recField(f,r){
   else if(f.t==="status")inp=`<select ${a}>${Object.entries(A_STATUS).map(([k,s])=>`<option value="${k}"${v===k?" selected":""}${k==="erledigt"&&v!=="erledigt"?" disabled":""}>${s[0]}${k==="erledigt"&&v!=="erledigt"?" (über Abzeichnen)":""}</option>`).join("")}</select>`;
   else if(f.t==="lieg")inp=`<select ${a}><option value="">– keine –</option>${sorted().map(([k,o])=>`<option value="${k}"${v===k?" selected":""}>${esc((o.nr?o.nr+" ":"")+(o.name||"Ohne Namen"))}</option>`).join("")}</select>`;
   else if(f.t==="anlage"){const list=recs("anlagen").filter(([,x])=>!r.lieg||x.lieg===r.lieg);inp=`<select ${a}><option value="">– keine –</option>${list.map(([k,x])=>`<option value="${k}"${v===k?" selected":""}>${esc((x.inv?x.inv+" ":"")+(x.bez||""))}</option>`).join("")}</select>`}
+  else if(f.t==="user"){const opts=activeUsers();inp=`<select ${a}><option value="">– niemand –</option>${opts.map(([k,u])=>`<option value="${esc(k)}"${v===k?" selected":""}>${esc(u.name)}</option>`).join("")}${v&&!opts.some(([k])=>k===v)?`<option value="${esc(v)}" selected>${esc(uName(v)||"(nicht mehr aktiv)")}</option>`:""}</select>`}
   else if(f.t==="date")inp=`<input type="date" ${a} value="${esc(v)}">`;
   else if(f.t==="time")inp=`<input type="time" ${a} value="${esc(v)}">`;
   else if(f.t==="num")inp=`<input inputmode="decimal" ${a} value="${esc(v)}" placeholder="0">`;
@@ -2599,13 +2751,13 @@ function recField(f,r){
 }
 function renderRec(){
   const {m,id}=recDlg,M=MODS[m],r=C[m].map.get(id);if(!r){closeImport();return}
-  const locked=m==="auftraege"&&r.status==="erledigt";
+  const roV=m==="vertraege"&&!can("vertraege"),locked=(m==="auftraege"&&r.status==="erledigt")||roV;
   const extras=m==="taetig"?termExtras(r,id):m==="auftraege"?ticketExtras(r,id):m==="wartung"?planExtras(r,id):m==="anlagen"?assetExtras(r,id):m==="schluessel"?keyExtras(r,id):m==="vertraege"?vtExtras(r,id):m==="zaehler"?zExtras(r,id):"";
   $("#imp").innerHTML=`<div class="dlg" role="dialog" aria-modal="true" aria-labelledby="rdT" style="max-width:860px">
-    <div class="dlg-h"><div><h2 id="rdT">${esc(M.title(r)||(recDlg.isNew?"Neu: "+M.single:M.single))}</h2><p>${esc(M.single)}${r.nr||r.inv?" · "+esc(r.nr||r.inv):""}${r.lieg?" · "+esc(liegName(r.lieg)):""}</p></div>
+    <div class="dlg-h"><div><h2 id="rdT">${esc(M.title(r)||(recDlg.isNew?"Neu: "+M.single:M.single))}</h2><p>${esc(M.single)}${r.nr||r.inv?" · "+esc(r.nr||r.inv):""}${r.lieg?" · "+esc(liegName(r.lieg)):""}${r.angelegtVon?` · angelegt von ${esc(r.angelegtVon)}${r.angelegtAm?" am "+new Date(r.angelegtAm).toLocaleDateString("de-DE"):""}`:""}</p></div>
       <button class="x" type="button" data-rd="close" aria-label="Schließen">×</button></div>
     <div class="dlg-b">
-      ${locked?`<div class="lock">Erledigt und abgezeichnet. Die Angaben sind schreibgeschützt.</div>`:""}
+      ${locked?`<div class="lock">${roV?"Verträge können nur Verwaltung und Administratoren ändern.":"Erledigt und abgezeichnet. Die Angaben sind schreibgeschützt."}</div>`:""}
       <fieldset class="form plain"${locked?" disabled":""}>${M.fields.map(f=>recField(f,r)).join("")}</fieldset>
       ${M.photos&&fotosOn()?recPhotos(r):""}
       ${extras}
@@ -2623,6 +2775,11 @@ function recPhotos(r){const fs=r.fotos||[];
 function logHTML(r){const l=(r.log||[]).slice().reverse();return `<div class="fld wide"><span class="lbl">Verlauf</span>
   <div class="logadd"><input id="logIn" placeholder="Notiz zum Auftrag hinzufügen …"><button class="btn sm" type="button" data-rd="log">Hinzufügen</button></div>
   <ul class="log">${l.map(x=>`<li><span class="mono">${new Date(x.at).toLocaleString("de-DE",{dateStyle:"short",timeStyle:"short"})}</span>${esc(x.t)}</li>`).join("")}</ul></div>`}
+/* Auftrag annehmen: damit nicht zwei Personen dasselbe tun */
+function claimHTML(r){if(!userMode()||!OPEN_ST.includes(r.status))return "";const when=r.bearbAm?new Date(r.bearbAm).toLocaleString("de-DE",{dateStyle:"short",timeStyle:"short"}):"";
+  if(!r.bearb)return `<div class="claim free"><span><b>Noch nicht angenommen.</b> Wer den Auftrag übernimmt, nimmt ihn an. Die anderen sehen dann, dass er vergeben ist.</span><button class="btn pri" type="button" data-rd="claim">Auftrag annehmen</button></div>`;
+  if(r.bearb===me)return `<div class="claim mine"><span><span class="av sm" style="background:${esc(uColor(me))}">${esc(initials(meU()))}</span> <b>Du bearbeitest diesen Auftrag</b>${when?" (angenommen "+when+")":""}.</span><button class="btn sm" type="button" data-rd="release">Wieder abgeben</button></div>`;
+  return `<div class="claim taken"><span><span class="av sm" style="background:${esc(uColor(r.bearb))}">${esc(initials(C.benutzer.map.get(r.bearb)||{name:"?"}))}</span> <b>Angenommen von ${esc(uName(r.bearb)||"(nicht mehr aktiv)")}</b>${when?" am "+when:""}.</span><button class="btn sm" type="button" data-rd="takeover">Selbst übernehmen</button></div>`}
 function ticketExtras(r,id){
   const plan=r.planId&&C.wartung.map.get(r.planId);
   let sign;
@@ -2632,7 +2789,7 @@ function ticketExtras(r,id){
       <div class="actions"><button class="btn sm pri" type="button" data-rd="tdoc">Auftragsbericht PDF</button>${PRINT_OK?`<button class="btn sm" type="button" data-rd="tprint">Drucken</button>`:""}
       <button class="btn sm ghost" type="button" data-rd="${recDlg.ui.reopen?"reopenok":"reopen"}">${recDlg.ui.reopen?"Wirklich wieder öffnen?":"Wieder öffnen"}</button></div></div>`}
   else if(r.status==="storniert")sign="";
-  else{let def="";try{def=JSON.parse(localStorage.getItem("begehung-pruefer")||"{}").pruefer||""}catch(e){}
+  else{let def=meName();if(!def)try{def=JSON.parse(localStorage.getItem("begehung-pruefer")||"{}").pruefer||""}catch(e){}
     sign=`<div class="signbox"><h3>Erledigt melden und abzeichnen</h3>
       <div class="form plain"><div class="fld"><label for="sg-datum">Erledigt am</label><input type="date" id="sg-datum" value="${today()}"></div>
       <div class="fld"><label for="sg-name">Name</label><input id="sg-name" value="${esc(def)}" placeholder="Vor- und Nachname"></div>
@@ -2640,23 +2797,28 @@ function ticketExtras(r,id){
       <div class="sigwrap"><span class="lbl">Unterschrift</span><canvas class="sigpad" data-sig="done"></canvas><div class="actions"><button class="btn sm ghost" type="button" data-rd="sigclear" data-k="done">Unterschrift löschen</button></div></div>
       <div class="actions" style="justify-content:space-between"><span class="note" id="sgHint"></span><button class="btn pri" type="button" data-rd="sign" id="sgBtn" disabled>Abzeichnen</button></div></div>`}
   const orig=r.mail?`<details class="origmail"><summary>Original-E-Mail anzeigen</summary><pre>${esc(r.mail)}</pre></details>`:"";
-  sign=sign+orig;
+  sign=claimHTML(r)+sign+orig;
   return `${plan?`<div class="lock">Aus Wartungsplan: <a href="#" data-rd="goto" data-to="wartung:${r.planId}">${esc(plan.bez)}</a>. Beim Abzeichnen wird die Durchführung dort eingetragen.</div>`:""}${sign}${logHTML(r)}`;
 }
-function termExtras(r,id){
-  return `<div class="mailbox"><div><b>In den Kalender übernehmen</b><small>Erstellt eine Kalenderdatei (.ics) für iPhone, iPad oder Outlook.</small></div><div class="actions"><button class="btn sm pri" type="button" data-rd="ics">Kalenderdatei</button></div></div>
+function termExtras(r,id){const cf=tConflicts(id,r);
+  return `${cf.length?`<div class="lock" style="display:block">Zur Info: ${esc(uName(r.tech))} ist im selben Zeitraum außerdem eingeplant:${cf.map(([k,t])=>`<br>· <a href="#" data-rd="goto" data-to="taetig:${esc(k)}">${esc(fmtDate(t.datum)+(tEnd(t)!==t.datum?"–"+fmtDate(tEnd(t)):"")+(t.zeit?" "+tZeit(t):"")+" "+(MODS.taetig.title(t)||""))}</a>${t.lieg?" ("+esc(liegShort(t.lieg))+")":""}`).join("")}</div>`:""}
+    <div class="mailbox"><div><b>In den Kalender übernehmen</b><small>Erstellt eine Kalenderdatei (.ics) für iPhone, iPad oder Outlook.</small></div><div class="actions"><button class="btn sm pri" type="button" data-rd="ics">Kalenderdatei</button></div></div>
     ${r.mail?`<details class="origmail"><summary>Original anzeigen (${esc(r.quelle||"E-Mail")})</summary><pre>${esc(r.mail)}</pre></details>`:""}`;
 }
+/* Wartung/Prüfung annehmen – gilt für die aktuelle Fälligkeit; mit „Durchführung speichern“ wird sie wieder frei für die nächste */
+function planClaimHTML(r){if(!userMode()||!planNext(r))return "";const when=r.bearbAm?new Date(r.bearbAm).toLocaleString("de-DE",{dateStyle:"short",timeStyle:"short"}):"",due=fmtDate(planNext(r));
+  if(!r.bearb)return `<div class="claim free"><span><b>Fälligkeit ${due}: noch nicht angenommen.</b> Wer sich darum kümmert (selbst prüfen oder Firma beauftragen), nimmt sie an.</span><button class="btn pri" type="button" data-rd="pclaim">Übernehmen</button></div>`;
+  if(r.bearb===me)return `<div class="claim mine"><span><span class="av sm" style="background:${esc(uColor(me))}">${esc(initials(meU()))}</span> <b>Du kümmerst dich um die Fälligkeit ${due}</b>${when?" (übernommen "+when+")":""}.</span><button class="btn sm" type="button" data-rd="prelease">Wieder abgeben</button></div>`;
+  return `<div class="claim taken"><span><span class="av sm" style="background:${esc(uColor(r.bearb))}">${esc(initials(C.benutzer.map.get(r.bearb)||{name:"?"}))}</span> <b>${esc(uName(r.bearb)||"(nicht mehr aktiv)")} kümmert sich</b> um die Fälligkeit ${due}${when?" (seit "+when+")":""}.</span><button class="btn sm" type="button" data-rd="ptakeover">Selbst übernehmen</button></div>`}
 function planExtras(r,id){
   const n=planNext(r),open=openTicketFor("planId",id),all=tickets().filter(([,t])=>t.planId===id);
-  return `<dl class="meta"><div><dt>Nächste Fälligkeit</dt><dd>${n?dueChip(n):"Datum „Zuletzt durchgeführt“ fehlt"}</dd></div><div><dt>Offener Auftrag</dt><dd>${open?`<a href="#" data-rd="goto" data-to="auftraege:${open[0]}">${esc(open[1].nr)}</a>`:"keiner"}</dd></div></dl>
-   <div class="actions">${open?"":`<button class="btn" type="button" data-rd="mkticket">Auftrag jetzt anlegen</button>`}</div>
+  return `${planClaimHTML(r)}<dl class="meta"><div><dt>Nächste Fälligkeit</dt><dd>${n?dueChip(n):"Datum „Zuletzt durchgeführt“ fehlt"}</dd></div>${open?`<div><dt>Früher automatisch angelegter Auftrag</dt><dd><a href="#" data-rd="goto" data-to="auftraege:${open[0]}">${esc(open[1].nr)}</a> (noch offen)</dd></div>`:""}</dl>
    <div class="signbox"><h3>Durchführung eintragen</h3><div class="form plain">
      <div class="fld"><label for="hx-datum">Durchgeführt am</label><input type="date" id="hx-datum" value="${today()}"></div>
-     <div class="fld"><label for="hx-von">Durch</label><input id="hx-von" value="${esc(r.dienst||"")}" placeholder="Firma / Person"></div>
+     <div class="fld"><label for="hx-von">Durch (Firma / Person)</label><input id="hx-von" value="${esc(r.dienst||meName()||"")}" placeholder="Firma / Person"></div>
      <div class="fld wide"><label for="hx-bem">Ergebnis / Bemerkung</label><input id="hx-bem" placeholder="z. B. ohne Mängel, Prüfbericht liegt vor"></div></div>
-     <div class="actions"><button class="btn pri" type="button" data-rd="hist">Durchführung speichern</button></div></div>
-   <div class="fld wide"><span class="lbl">Bisherige Durchführungen</span>${(r.hist||[]).length?`<ul class="log">${r.hist.slice().sort((a,b)=>a.datum<b.datum?1:-1).map(h=>`<li><span class="mono">${fmtDate(h.datum)}</span>${esc([h.von,h.bem,h.auftrag?"Auftrag "+h.auftrag:""].filter(Boolean).join(" · "))}</li>`).join("")}</ul>`:`<p class="note">Noch keine eingetragen.</p>`}</div>
+     <div class="actions" style="justify-content:space-between"><button class="btn" type="button" data-rd="mkticket" title="Bei der Prüfung ist ein Defekt aufgefallen – daraus wird ein Auftrag (Reparatur)">Mangel → Auftrag anlegen</button><button class="btn pri" type="button" data-rd="hist">Durchführung speichern</button></div></div>
+   <div class="fld wide"><span class="lbl">Bisherige Durchführungen</span>${(r.hist||[]).length?`<ul class="log">${r.hist.slice().sort((a,b)=>a.datum<b.datum?1:-1).map(h=>`<li><span class="mono">${fmtDate(h.datum)}</span>${esc([h.von,h.bem,h.by&&h.by!==h.von?"erfasst von "+h.by:"",h.auftrag?"Auftrag "+h.auftrag:""].filter(Boolean).join(" · "))}</li>`).join("")}</ul>`:`<p class="note">Noch keine eingetragen.</p>`}</div>
    ${all.length?`<div class="fld wide"><span class="lbl">Aufträge aus diesem Plan</span><ul class="log">${all.map(([tid,t])=>`<li><a href="#" data-rd="goto" data-to="auftraege:${tid}" class="mono">${esc(t.nr)}</a> ${esc(A_STATUS[t.status]?.[0]||"")} · Frist ${fmtDate(t.frist)}</li>`).join("")}</ul></div>`:""}`;
 }
 function assetExtras(r,id){
@@ -2665,15 +2827,22 @@ function assetExtras(r,id){
    <div class="fld wide"><span class="lbl">Wartung & Prüfungen</span>${pl.length?`<ul class="log">${pl.map(([pid,p])=>`<li><a href="#" data-rd="goto" data-to="wartung:${pid}">${esc(p.bez)}</a> ${planNext(p)?dueChip(planNext(p)):""}</li>`).join("")}</ul>`:`<p class="note">Keine.</p>`}</div>
    <div class="fld wide"><span class="lbl">Aufträge (Historie)</span>${tk.length?`<ul class="log">${tk.sort((a,b)=>String(b[1].nr).localeCompare(String(a[1].nr))).map(([tid,t])=>`<li><a href="#" data-rd="goto" data-to="auftraege:${tid}" class="mono">${esc(t.nr)}</a> ${esc(t.titel||"")} · ${esc(A_STATUS[t.status]?.[0]||"")}</li>`).join("")}</ul>`:`<p class="note">Keine.</p>`}</div>`;
 }
+function kaVonDefault(){if(meName())return meName();try{return localStorage.getItem(APP_ID+"-ausgeber")||JSON.parse(localStorage.getItem("begehung-pruefer")||"{}").pruefer||""}catch(e){return ""}}
 function keyExtras(r,id){
   const av=num(r.anzahl)-keyOut(r),aus=(r.ausgaben||[]).slice().sort((a,b)=>(!!a.zur-!!b.zur)||(a.datum<b.datum?1:-1));
   return `<div class="fld wide"><span class="lbl">Ausgaben · ${av} von ${num(r.anzahl)} verfügbar</span>
    ${aus.length?`<div class="tw"><table class="mt"><thead><tr><th>Empfänger</th><th>Anzahl</th><th>Ausgabe</th><th>Rückgabe bis</th><th>Zurück am</th><th></th></tr></thead><tbody>
-   ${aus.map(a=>`<tr><td><b>${esc(a.an)}</b><small>${esc(a.firma||"")}</small></td><td class="mono">${num(a.anz||1)}</td><td class="mono">${fmtDate(a.datum)}</td><td>${a.zur?`<span class="mono">${fmtDate(a.bis)||"–"}</span>`:dueChip(a.bis,"offen")}</td><td class="mono">${a.zur?fmtDate(a.zur.datum):"–"}</td>
+   ${aus.map(a=>`<tr><td><b>${esc(a.an)}</b><small>${esc(a.firma||"")}</small><small>${a.von?"ausgegeben von "+esc(a.von):""}</small></td><td class="mono">${num(a.anz||1)}</td><td class="mono">${fmtDate(a.datum)}</td><td>${a.zur?`<span class="mono">${fmtDate(a.bis)||"–"}</span>`:dueChip(a.bis,"offen")}</td><td class="mono">${a.zur?`${fmtDate(a.zur.datum)}${a.zur.von?`<small>von ${esc(a.zur.von)}</small>`:""}${a.zur.bem?`<small>${esc(a.zur.bem)}</small>`:""}`:"–"}</td>
      <td><div class="actions" style="flex-wrap:nowrap">${a.zur?"":`<button class="btn sm" type="button" data-rd="kret" data-id="${a.id}">Rückgabe</button>`}<button class="btn sm ghost" type="button" data-rd="kdoc" data-id="${a.id}">Quittung PDF</button></div></td></tr>`).join("")}</tbody></table></div>`:`<p class="note">Noch nicht ausgegeben.</p>`}</div>
-   <div class="signbox"><h3>Schlüssel ausgeben</h3><div class="form plain">
+   ${(()=>{const x=recDlg.ui.kret&&(r.ausgaben||[]).find(z=>z.id===recDlg.ui.kret);if(!x||x.zur)return "";
+     return `<div class="signbox" id="kr-box"><h3>Rückgabe erfassen: ${esc(x.an)} · ${num(x.anz||1)} Stück</h3><div class="form plain">
+     <div class="fld"><label for="kr-datum">Zurück am</label><input type="date" id="kr-datum" value="${today()}"></div>
+     <div class="fld"><label for="kr-von">Zurückgenommen von</label><input id="kr-von" value="${esc(kaVonDefault())}" placeholder="Vor- und Nachname"></div>
+     <div class="fld wide"><label for="kr-bem">Bemerkung (optional)</label><input id="kr-bem" placeholder="z. B. vollständig zurück, ein Schlüssel fehlt …"></div></div>
+     <div class="actions" style="justify-content:space-between"><span class="note" id="krHint"></span><div class="actions"><button class="btn" type="button" data-rd="kretno">Abbrechen</button><button class="btn pri" type="button" data-rd="kretok" data-id="${esc(x.id)}">Rückgabe speichern</button></div></div></div>`})()}   <div class="signbox"><h3>Schlüssel ausgeben</h3><div class="form plain">
      <div class="fld"><label for="ka-an">Empfänger</label><input id="ka-an" placeholder="Vor- und Nachname"></div>
      <div class="fld"><label for="ka-firma">Funktion / Firma</label><input id="ka-firma" placeholder="z. B. Reinigungsfirma"></div>
+     <div class="fld"><label for="ka-von">Ausgegeben von</label><input id="ka-von" value="${esc(kaVonDefault())}" placeholder="Vor- und Nachname"></div>
      <div class="fld"><label for="ka-anz">Anzahl</label><input id="ka-anz" inputmode="numeric" value="1"></div>
      <div class="fld"><label for="ka-datum">Ausgabe am</label><input type="date" id="ka-datum" value="${today()}"></div>
      <div class="fld"><label for="ka-bis">Rückgabe bis</label><input type="date" id="ka-bis"></div></div>
@@ -2712,7 +2881,7 @@ function recReady(){
   const pads=(recDlg&&recDlg.ui.pads)||{};
   const sb=$("#sgBtn");if(sb){const m=[];if(!($("#sg-name").value||"").trim())m.push("Name");if(!$("#sg-datum").value)m.push("Datum");if(!(pads.done&&pads.done.drawn))m.push("Unterschrift");
     sb.disabled=!!m.length;$("#sgHint").textContent=m.length?"Fehlt noch: "+m.join(", "):""}
-  const kb=$("#kaBtn");if(kb){const m=[];if(!($("#ka-an").value||"").trim())m.push("Empfänger");if(!(pads.key&&pads.key.drawn))m.push("Unterschrift");
+  const kb=$("#kaBtn");if(kb){const m=[];if(!($("#ka-an").value||"").trim())m.push("Empfänger");if(!($("#ka-von").value||"").trim())m.push("Ausgegeben von");if(!(pads.key&&pads.key.drawn))m.push("Unterschrift");
     kb.disabled=!!m.length;$("#kaHint").textContent=m.length?"Fehlt noch: "+m.join(", "):""}
 }
 function addLog(r,t){r.log=(r.log||[]).concat({at:Date.now(),t})}
@@ -2721,6 +2890,12 @@ async function recClick(e){
   if(b.tagName==="A")e.preventDefault();
   if(a==="close")return closeImport();
   if(a==="qr"){const it=recLabel(m,id,r);finishNew();recDlg=null;afterRec();return openLabels([it],"QR-Etikett "+it.title)}
+  if(a==="claim"||a==="takeover"){if(!me)return;const prev=r.bearb&&r.bearb!==me?uName(r.bearb):"";
+    if(a==="takeover"&&!confirm(`Auftrag von ${prev||"der anderen Person"} übernehmen?\n\nBitte vorher kurz absprechen.`))return;
+    r.bearb=me;r.bearbAm=Date.now();if(r.status==="offen")r.status="arbeit";addLog(r,prev?`Übernommen von ${meName()} (vorher ${prev})`:`Angenommen von ${meName()}`);cTouch(m,id);
+    histAdd(Object.assign({act:prev?"übernommen":"angenommen",note:prev?`vorher ${prev}`:""},recInfo(m,id,r)));return renderRec()}
+  if(a==="release"){if(r.bearb!==me)return;delete r.bearb;delete r.bearbAm;if(r.status==="arbeit")r.status="offen";addLog(r,`Abgegeben von ${meName()}`);cTouch(m,id);
+    histAdd(Object.assign({act:"abgegeben"},recInfo(m,id,r)));return renderRec()}
   if(a==="del"){const M=MODS[m],info=recInfo(m,id,r),out=m==="schluessel"?keyOut(r):0;
     return confirmDelete({title:M.single,label:info.label,lines:[info.liegName,m==="auftraege"?`Status: ${A_STATUS[r.status]?.[0]||r.status||""}`:""],
       warn:m==="auftraege"&&r.status==="erledigt"?"Dieser Auftrag ist bereits abgezeichnet.":out?`Von diesem Schlüssel sind noch ${out} Exemplar${out>1?"e":""} ausgegeben.`:"",
@@ -2738,7 +2913,7 @@ async function recClick(e){
   if(a==="log"){const v=($("#logIn").value||"").trim();if(!v)return;addLog(r,v);cTouch(m,id);return renderRec()}
   if(a==="sign"){b.disabled=true;b.textContent="Wird gespeichert …";
     const sig=await storeSig(recDlg.ui.pads.done),name=$("#sg-name").value.trim(),datum=$("#sg-datum").value,bericht=$("#sg-ber").value.trim();
-    r.abschluss={datum,name,bericht,sig,at:Date.now()};r.status="erledigt";addLog(r,`Erledigt und abgezeichnet von ${name}`);cTouch(m,id);
+    r.abschluss={datum,name,bericht,sig,at:Date.now(),by:me||undefined};r.status="erledigt";if(me&&!r.bearb){r.bearb=me;r.bearbAm=Date.now()}addLog(r,`Erledigt und abgezeichnet von ${name}`);cTouch(m,id);
     histAdd(Object.assign({act:"abgezeichnet",note:`von ${name}, erledigt am ${fmtDate(datum)}`},recInfo(m,id,r)));
     try{const pv=JSON.parse(localStorage.getItem("begehung-pruefer")||"{}");pv.pruefer=name;localStorage.setItem("begehung-pruefer",JSON.stringify(pv))}catch(e){}
     if(r.planId&&C.wartung.map.has(r.planId)){const p=C.wartung.map.get(r.planId);p.hist=(p.hist||[]).concat({datum,von:r.zust||name,bem:bericht,auftrag:r.nr});if(!p.letzte||datum>p.letzte)p.letzte=datum;cTouch("wartung",r.planId)}
@@ -2746,14 +2921,28 @@ async function recClick(e){
   if(a==="reopen"){recDlg.ui.reopen=true;return renderRec()}
   if(a==="reopenok"){histAdd(Object.assign({act:"wieder geöffnet",note:`vorher abgezeichnet von ${r.abschluss?.name||"–"}`},recInfo(m,id,r)));r.status="arbeit";addLog(r,"Wieder geöffnet (vorherige Abzeichnung: "+(r.abschluss?.name||"")+", "+fmtDate(r.abschluss?.datum)+")");r.abschlussAlt=(r.abschlussAlt||[]).concat(r.abschluss||[]);delete r.abschluss;recDlg.ui={};cTouch(m,id);return renderRec()}
   if(a==="pdf"||a==="tdoc"||a==="tprint"){const M=MODS[m];return outDoc([await recModel(m,id,r)],`${M.single} ${r.nr||r.inv||M.title(r)||""}`.trim(),a==="tprint"?"print":"pdf")}
-  if(a==="hist"){const datum=$("#hx-datum").value;if(!datum)return;r.hist=(r.hist||[]).concat({datum,von:$("#hx-von").value.trim(),bem:$("#hx-bem").value.trim()});if(!r.letzte||datum>r.letzte)r.letzte=datum;cTouch(m,id);return renderRec()}
-  if(a==="mkticket"){const tid=createTicket({titel:r.bez,lieg:r.lieg,anlage:r.anlage||"",kat:r.kat||"",zust:r.dienst||"",frist:planNext(r)||"",planId:id,quelle:"Wartungsplan"},"Aus Wartungsplan angelegt");r.lastGen=planNext(r);cTouch(m,id);return openRec("auftraege",tid)}
+  if(a==="hist"){const datum=$("#hx-datum").value;if(!datum)return;const von=$("#hx-von").value.trim(),bem=$("#hx-bem").value.trim(),claimer=r.bearb?uName(r.bearb):"";
+    r.hist=(r.hist||[]).concat({datum,von,bem,by:meName()||undefined,bearb:claimer||undefined});if(!r.letzte||datum>r.letzte)r.letzte=datum;delete r.bearb;delete r.bearbAm;cTouch(m,id);
+    histAdd(Object.assign({act:"durchgeführt",note:[fmtDate(datum),von?"durch "+von:"",bem].filter(Boolean).join(" · ")},recInfo(m,id,r)));return renderRec()}
+  if(a==="pclaim"||a==="ptakeover"){if(!me)return;const prev=r.bearb&&r.bearb!==me?uName(r.bearb):"";
+    if(a==="ptakeover"&&!confirm(`Von ${prev||"der anderen Person"} übernehmen?\n\nBitte vorher kurz absprechen.`))return;
+    r.bearb=me;r.bearbAm=Date.now();cTouch(m,id);histAdd(Object.assign({act:prev?"übernommen":"angenommen",note:`Fälligkeit ${fmtDate(planNext(r))}${prev?", vorher "+prev:""}`},recInfo(m,id,r)));return renderRec()}
+  if(a==="prelease"){if(r.bearb!==me)return;delete r.bearb;delete r.bearbAm;cTouch(m,id);histAdd(Object.assign({act:"abgegeben",note:`Fälligkeit ${fmtDate(planNext(r))}`},recInfo(m,id,r)));return renderRec()}
+  if(a==="mkticket"){const bem=($("#hx-bem")&&$("#hx-bem").value.trim())||"";finishNew();recDlg=null;
+    const tid=createTicket({titel:`Mangel aus ${r.bez||"Prüfung"}`,lieg:r.lieg,anlage:r.anlage||"",kat:r.kat||"",quelle:"Prüfung",text:[`Festgestellt bei: ${r.bez||""}`,bem].filter(Boolean).join("\n")},"Aus Wartung / Prüfung angelegt");return openRec("auftraege",tid,true)}
   if(a==="assetticket"){finishNew();const tid=createTicket({lieg:r.lieg,anlage:id,kat:r.kat==="Elektro"?"Elektro":"",ort:r.ort||""},"Auftrag angelegt");return openRec("auftraege",tid,true)}
   if(a==="assetplan"){finishNew();return newRec("wartung",{lieg:r.lieg,anlage:id,bez:r.bez?"Wartung "+r.bez:""})}
   if(a==="kout"){b.disabled=true;const sig=await storeSig(recDlg.ui.pads.key);
-    r.ausgaben=(r.ausgaben||[]).concat({id:"k"+rid(),an:$("#ka-an").value.trim(),firma:$("#ka-firma").value.trim(),anz:$("#ka-anz").value||"1",datum:$("#ka-datum").value||today(),bis:$("#ka-bis").value,sig,at:Date.now()});
-    cTouch(m,id);histAdd(Object.assign({act:"Schlüssel ausgegeben",note:`an ${r.ausgaben[r.ausgaben.length-1].an}`},recInfo(m,id,r)));recDlg.ui={};return renderRec()}
-  if(a==="kret"){const x=(r.ausgaben||[]).find(z=>z.id===b.dataset.id);if(x){x.zur={datum:today(),at:Date.now()};cTouch(m,id);histAdd(Object.assign({act:"Schlüssel zurück",note:`von ${x.an}`},recInfo(m,id,r)))}return renderRec()}
+    r.ausgaben=(r.ausgaben||[]).concat({id:"k"+rid(),an:$("#ka-an").value.trim(),firma:$("#ka-firma").value.trim(),von:$("#ka-von").value.trim(),anz:$("#ka-anz").value||"1",datum:$("#ka-datum").value||today(),bis:$("#ka-bis").value,sig,at:Date.now()});
+    try{localStorage.setItem(APP_ID+"-ausgeber",r.ausgaben[r.ausgaben.length-1].von)}catch(_){}
+    cTouch(m,id);histAdd(Object.assign({act:"Schlüssel ausgegeben",note:`an ${r.ausgaben[r.ausgaben.length-1].an}, ausgegeben von ${r.ausgaben[r.ausgaben.length-1].von}`},recInfo(m,id,r)));recDlg.ui={};return renderRec()}
+  if(a==="kret"){recDlg.ui.kret=b.dataset.id;renderRec();const bx=$("#kr-box");if(bx){try{bx.scrollIntoView({block:"center",behavior:"smooth"})}catch(_){}const v=$("#kr-von");if(v&&!v.value)v.focus()}return}
+  if(a==="kretno"){recDlg.ui.kret=null;return renderRec()}
+  if(a==="kretok"){const x=(r.ausgaben||[]).find(z=>z.id===b.dataset.id);if(!x)return;const von=($("#kr-von").value||"").trim();
+    if(!von){const h=$("#krHint");if(h){h.textContent="Fehlt noch: Zurückgenommen von";h.style.color="var(--z4)"}return}
+    const bem=($("#kr-bem").value||"").trim();x.zur={datum:$("#kr-datum").value||today(),von,bem:bem||undefined,at:Date.now()};
+    try{localStorage.setItem(APP_ID+"-ausgeber",von)}catch(_){}recDlg.ui.kret=null;cTouch(m,id);
+    histAdd(Object.assign({act:"Schlüssel zurück",note:`von ${x.an}, zurückgenommen von ${von}${bem?" – "+bem:""}`},recInfo(m,id,r)));return renderRec()}
   if(a==="zadd"){const raw=($("#zs-stand").value||"").trim().replace(/\s/g,"").replace(/\.(?=\d{3}(\D|$))/g,"").replace(",","."),v=parseFloat(raw),datum=$("#zs-datum").value||today(),w=$("#zs-wechsel").checked;
     const h=$("#zsHint");if(!isFinite(v)){if(h){h.textContent="Bitte einen Zählerstand eingeben.";h.style.color="var(--z4)"}return}
     const last=zLast(r);if(last&&!w&&datum>=last.datum&&v<num(last.stand)&&!confirm(`Der neue Stand (${v.toLocaleString("de-DE")}) ist kleiner als der letzte (${num(last.stand).toLocaleString("de-DE")}).\n\nTrotzdem speichern? Bei einem neuen Zähler bitte „Zählerwechsel“ ankreuzen.`))return;
@@ -2767,14 +2956,14 @@ function recInput(e){
   if(t.id==="rdFoto"&&e.type==="change"){recAddFotos([...t.files]);return}
   if(t.dataset.rf){const {m,id}=recDlg,r=C[m].map.get(id);if(!r)return;let v=t.value;
     if(r[t.dataset.rf]===v){/* Vertrag: berechnete Fristen nach Abschluss der Eingabe neu anzeigen */
-      if(e.type==="change"&&m==="vertraege"&&["ende","kfrist","beginn"].includes(t.dataset.rf)){const k=t.dataset.rf;renderRec();const n=$("#rf-"+k);if(n)try{n.focus()}catch(_){}}
+      if(e.type==="change"&&((m==="vertraege"&&["ende","kfrist","beginn"].includes(t.dataset.rf))||(m==="taetig"&&["datum","datumBis","zeit","bis"].includes(t.dataset.rf))||(m==="wartung"&&t.dataset.rf==="letzte"))){const k=t.dataset.rf;renderRec();const n=$("#rf-"+k);if(n)try{n.focus()}catch(_){}}
       return}
     const old=r[t.dataset.rf];r[t.dataset.rf]=v;
     {const fl=MODS[m].fields.find(f=>f.k===t.dataset.rf);histEdit("rec:"+m+":"+id,recInfo(m,id,r),fl?fl.l:t.dataset.rf,recDlg.isNew?"angelegt":"geändert")}
     if(m==="auftraege"&&t.dataset.rf==="status")addLog(r,`Status: ${A_STATUS[old]?.[0]||old||"–"} → ${A_STATUS[v]?.[0]||v}`);
     if(m==="auftraege"&&t.dataset.rf==="zust"&&e.type==="change")addLog(r,`Zuständig: ${v||"–"}`);
     cTouch(m,id);
-    if(t.tagName==="SELECT"&&(t.dataset.rf==="lieg"||t.dataset.rf==="status"||t.dataset.rf==="verl"))renderRec();
+    if(t.tagName==="SELECT"&&(t.dataset.rf==="lieg"||t.dataset.rf==="status"||t.dataset.rf==="verl"||t.dataset.rf==="tech"||(m==="wartung"&&t.dataset.rf==="intervall")))renderRec();
     else if(t.dataset.rf==="titel"||t.dataset.rf==="bez"){const h=$("#rdT");if(h)h.textContent=MODS[m].title(r)||MODS[m].single}
     return}
   recReady();
@@ -2951,6 +3140,11 @@ const WT=["So","Mo","Di","Mi","Do","Fr","Sa"];
 function dayLabel(iso){const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||"");if(!m)return "";return WT[new Date(+m[1],+m[2]-1,+m[3]).getDay()]+" "+fmtDate(iso)}
 const tZeit=r=>[r.zeit,r.bis].filter(Boolean).join("–")||"ganztägig";
 const tKey=r=>(r.datum||"")+(r.zeit||"00:00");
+/* Ende eines Termins/Einsatzes (mehrtägig über „Bis Datum“) */
+function tEnd(r){return r.datumBis&&r.datum&&r.datumBis>r.datum?r.datumBis:(r.datum||"")}
+/* Überschneidungen derselben Person mit anderen Terminen/Einsätzen */
+function tConflicts(id,r){if(!r.tech||!r.datum||r.status==="abgesagt")return [];const s=r.datum,e=tEnd(r);
+  return recs("taetig").filter(([k,t])=>k!==id&&t.tech===r.tech&&t.datum&&t.status!=="abgesagt"&&t.datum<=e&&tEnd(t)>=s&&(s!==e||t.datum!==tEnd(t)||!r.zeit||!t.zeit||!(((t.bis||"23:59")<=r.zeit)||((r.bis||"23:59")<=t.zeit))))}
 function guessArt(text){const T=" "+normTxt(text)+" ",h=a=>a.some(k=>T.includes(" "+k));
   if(h(["einweisung","unterweisung","sicherheitseinweisung"]))return "Einweisung Fremdfirma";
   if(h(["abnahme"]))return "Abnahme";
@@ -3052,9 +3246,9 @@ function icsFor(r){
   const d=(r.datum||"").replace(/-/g,""),esc2=v=>String(v||"").replace(/\\/g,"\\\\").replace(/\n/g,"\\n").replace(/([,;])/g,"\\$1"),stamp=new Date().toISOString().replace(/[-:]/g,"").replace(/\.\d+/,"");
   const tm=x=>x?x.replace(":","")+"00":"";const o=objs.get(r.lieg);
   let start,end;if(r.zeit){start=`DTSTART:${d}T${tm(r.zeit)}`;let e=r.bis;if(!e){const [h,mi]=r.zeit.split(":").map(Number);const x=new Date(2000,0,1,h+1,mi);e=String(x.getHours()).padStart(2,"0")+":"+String(x.getMinutes()).padStart(2,"0")}end=`DTEND:${d}T${tm(e)}`}
-  else{const n=new Date(+d.slice(0,4),+d.slice(4,6)-1,+d.slice(6,8)+1);start=`DTSTART;VALUE=DATE:${d}`;end=`DTEND;VALUE=DATE:${ISO(n).replace(/-/g,"")}`}
+  else{const de=tEnd(r).replace(/-/g,"")||d,n=new Date(+de.slice(0,4),+de.slice(4,6)-1,+de.slice(6,8)+1);start=`DTSTART;VALUE=DATE:${d}`;end=`DTEND;VALUE=DATE:${ISO(n).replace(/-/g,"")}`}
   const loc=[r.ort,o&&o.name,o&&o.adresse].filter(Boolean).join(", ");
-  const desc=[r.art,r.firma?"Firma / Ansprechpartner: "+r.firma:"",r.kontakt?"Kontakt: "+r.kontakt:"",r.notiz].filter(Boolean).join("\n");
+  const desc=[r.art,r.tech?"Mitarbeiter/in: "+uName(r.tech):"",r.firma?"Firma / Ansprechpartner: "+r.firma:"",r.kontakt?"Kontakt: "+r.kontakt:"",r.notiz].filter(Boolean).join("\n");
   return ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//FMS//Termine//DE","BEGIN:VEVENT",`UID:${(r.uid||rid())}@cafm`,`DTSTAMP:${stamp}`,start,end,`SUMMARY:${esc2(r.titel||"Termin")}`,loc?`LOCATION:${esc2(loc)}`:"",desc?`DESCRIPTION:${esc2(desc)}`:"","END:VEVENT","END:VCALENDAR"].filter(Boolean).join("\r\n");
 }
 
@@ -3067,7 +3261,7 @@ function fristenICS(){
   const stamp=new Date().toISOString().replace(/[-:]/g,"").replace(/\.\d+/,""),lim=addMonths(today(),13);
   const items=agendaItems().filter(x=>x.d>=today()&&x.d<=lim);
   const L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//FMS//Fristen//DE","CALSCALE:GREGORIAN","METHOD:PUBLISH","X-WR-CALNAME:FMS Fristen"];
-  items.forEach(x=>{const d=x.d.replace(/-/g,""),nx=(()=>{const [y,m,dd]=x.d.split("-").map(Number);return ISO(new Date(y,m-1,dd+1)).replace(/-/g,"")})();
+  items.forEach(x=>{const d=(x.start||x.d).replace(/-/g,""),nx=(()=>{const [y,m,dd]=(x.end||x.d).split("-").map(Number);return ISO(new Date(y,m-1,dd+1)).replace(/-/g,"")})();
     const o=objs.get(x.lieg),pre=x.type==="Termin"?"P1D":x.type==="Auftrag"?"P2D":"P14D";
     L.push("BEGIN:VEVENT",`UID:fms-${String(x.open+"-"+x.type+(x.type==="Schlüssel"?"-"+x.label:"")).replace(/[^A-Za-z0-9]+/g,"-").slice(0,90)}-${d}@fms`,`DTSTAMP:${stamp}`,`DTSTART;VALUE=DATE:${d}`,`DTEND;VALUE=DATE:${nx}`,
       fold(`SUMMARY:${e(x.type+": "+x.label)}`),o?fold(`LOCATION:${e([o.name,o.adresse].filter(Boolean).join(", "))}`):"",fold(`DESCRIPTION:${e("Aus FMS · "+(liegName(x.lieg)||""))}`),"TRANSP:TRANSPARENT",
@@ -3089,7 +3283,7 @@ function mangelTicket(sec,rowId){
 /* ---------- Dokumente ---------- */
 const DOC_CSS=`@page{size:A4;margin:16mm}img.logo{display:block;height:14mm;width:auto;margin:0 0 4px auto}body{font:10.5pt/1.45 Arial,Helvetica,sans-serif;color:#111;max-width:180mm;margin:0 auto;padding:10mm 0}h1{font-size:16pt;margin:0}h2{font-size:11.5pt;margin:18px 0 6px;border-bottom:1.5px solid #111;padding-bottom:3px}
 .top{display:flex;justify-content:space-between;gap:16px;align-items:flex-end;border-bottom:2.5px solid #0B6E79;padding-bottom:8px}.top small{color:#555}table{width:100%;border-collapse:collapse;margin:4px 0}th,td{border:1px solid #999;padding:4px 6px;text-align:left;vertical-align:top}
-th{background:#f2f4f5;font-weight:600}.kv th{width:36%}.over{color:#B3261E;font-weight:600}.num{text-align:right}.sig{display:flex;gap:30px;margin-top:22px;align-items:flex-end}.sig div{flex:1}.sig img{height:60px;display:block}.line{border-top:1px solid #111;padding-top:3px;font-size:9pt;color:#444}.foot{margin-top:24px;font-size:8.5pt;color:#555}.muted{color:#666}`;
+th{background:#f2f4f5;font-weight:600}.kv th{width:36%}.kv2 th{width:18%}.kv2 td{width:32%}.over{color:#B3261E;font-weight:600}.num{text-align:right}.sig{display:flex;gap:30px;margin-top:22px;align-items:flex-end}.sig div{flex:1}.sig img{height:60px;display:block}.line{border-top:1px solid #111;padding-top:3px;font-size:9pt;color:#444}.foot{margin-top:24px;font-size:8.5pt;color:#555}.muted{color:#666}`;
 const docWrap=(title,sub,body)=>`<!doctype html><html lang="de"><head><meta charset="utf-8"><title>${esc(title)}</title><style>${DOC_CSS}</style></head><body><div class="top"><div><h1>${esc(title)}</h1><small>${esc(sub)}</small></div><div style="text-align:right"><img class="logo" src="${LOGO_PNG}" alt="Ev. Kirchenkreis Soest-Arnsberg"><small>erstellt ${new Date().toLocaleString("de-DE")}</small></div></div>${body}</body></html>`;
 const kv=rows=>`<table class="kv">${rows.map(([a,b])=>`<tr><th>${esc(a)}</th><td>${b}</td></tr>`).join("")}</table>`;
 async function sigSrc(s){if(!s)return "";if(s.startsWith("data:"))return s;const b=await IMG.blob(s);return b?await toDataURL(b):""}
@@ -3101,7 +3295,7 @@ async function ticketDoc(r){const a=r.abschluss||{},sig=await sigSrc(a.sig);
    <h2>Verlauf</h2><table>${(r.log||[]).map(x=>`<tr><td style="width:30%">${new Date(x.at).toLocaleString("de-DE")}</td><td>${esc(x.t)}</td></tr>`).join("")}</table>`)}
 async function keyDoc(k,a){const sig=await sigSrc(a.sig);
   return docWrap("Schlüsselquittung",`${k.nr||""} ${k.bez||""}`,`<h2>Schlüssel</h2>${kv([["Schlüssel-Nr.",esc(k.nr||"–")],["Bezeichnung",esc(k.bez||"–")],["Schließung",esc(k.schliess||"–")],["Liegenschaft",esc(liegName(k.lieg)||"–")],["Adresse",esc(objs.get(k.lieg)?.adresse||"–")]])}
-   <h2>Ausgabe</h2>${kv([["Empfänger",esc(a.an)],["Funktion / Firma",esc(a.firma||"–")],["Anzahl",esc(a.anz||"1")],["Ausgegeben am",fmtDate(a.datum)],["Rückgabe bis",fmtDate(a.bis)||"unbefristet"],["Zurückgegeben am",a.zur?fmtDate(a.zur.datum):"–"]])}
+   <h2>Ausgabe</h2>${kv([["Empfänger",esc(a.an)],["Funktion / Firma",esc(a.firma||"–")],["Anzahl",esc(a.anz||"1")],["Ausgegeben am",fmtDate(a.datum)],["Ausgegeben von",esc(a.von||"–")],["Rückgabe bis",fmtDate(a.bis)||"unbefristet"],["Zurückgegeben am",a.zur?fmtDate(a.zur.datum):"–"],["Zurückgenommen von",esc(a.zur?.von||"–")]].concat(a.zur?.bem?[["Bemerkung Rückgabe",esc(a.zur.bem)]]:[]))}
    <p>Der Empfänger bestätigt den Erhalt der oben genannten Schlüssel. Er verpflichtet sich, die Schlüssel sorgfältig aufzubewahren, nicht an Dritte weiterzugeben und einen Verlust unverzüglich zu melden.</p>
    <div class="sig"><div>${fmtDate(a.datum)}<div class="line">Datum</div></div><div>${sig?`<img src="${sig}" alt="">`:""}<div class="line">Unterschrift Empfänger (${esc(a.an)})</div></div></div>`)}
 function printHTML(html){const f=document.createElement("iframe");f.style.cssText="position:fixed;width:0;height:0;border:0;right:0;bottom:0";document.body.appendChild(f);f.srcdoc=html;f.onload=()=>{try{f.contentWindow.focus();f.contentWindow.print()}catch(e){}setTimeout(()=>f.remove(),60000)}}
@@ -3117,20 +3311,21 @@ async function recModel(m,id,r){
   const M=MODS[m],short=M.fields.filter(f=>f.t!=="area"&&f.k!=="titel"&&f.k!=="bez"),blocks=[{h:"Angaben"},{kv2:short.map(f=>[f.l,fieldVal(f,r)])}];
   M.fields.filter(f=>f.t==="area"&&r[f.k]).forEach(f=>blocks.push({h:f.l},{p:r[f.k]}));
   if(m==="auftraege"){
+    if(r.bearb||r.angelegtVon)blocks.splice(2,0,{kv2:[["Angelegt von",r.angelegtVon||"–"],["Angenommen von",r.bearb?`${uName(r.bearb)}${r.bearbAm?" am "+new Date(r.bearbAm).toLocaleDateString("de-DE"):""}`:"–"]]});
     if(r.abschluss){const a=r.abschluss;blocks.push({h:"Erledigung"},{kv2:[["Erledigt am",fmtDate(a.datum)],["Abgezeichnet von",a.name||"–"],["Zeitpunkt",new Date(a.at).toLocaleString("de-DE")],["Status",A_STATUS[r.status]?.[0]||""]]});
       if(a.bericht)blocks.push({p:a.bericht});blocks.push({sig:{date:fmtDate(a.datum),img:await sigSrc(a.sig),label:`Unterschrift ${a.name||""}`}})}
     if((r.log||[]).length)blocks.push({h:"Verlauf"},{table:{head:["Zeitpunkt","Eintrag"],w:[.24,.76],sz:8.2,rows:r.log.map(x=>[new Date(x.at).toLocaleString("de-DE"),x.t])}});
   }
   if(m==="wartung"){const n=planNext(r),ot=openTicketFor("planId",id);
-    blocks.splice(2,0,{kv2:[["Nächste Fälligkeit",n?{t:fmtDate(n),c:daysUntil(n)<0?"over":"bold"}:{t:"Termin fehlt",c:"over"}],["Offener Auftrag",ot?ot[1].nr:"keiner"]]});
+    blocks.splice(2,0,{kv2:[["Nächste Fälligkeit",n?{t:fmtDate(n),c:daysUntil(n)<0?"over":"bold"}:{t:"Termin fehlt",c:"over"}],["Angenommen von",r.bearb?uName(r.bearb):"–"]]});
     const h=(r.hist||[]).slice().sort((a,b)=>a.datum<b.datum?1:-1);
     blocks.push({h:"Durchführungen"},h.length?{table:{head:["Datum","Durch","Ergebnis / Bemerkung","Auftrag"],w:[.14,.28,.43,.15],rows:h.map(x=>[fmtDate(x.datum),x.von||"",x.bem||"",x.auftrag||""])}}:{p:"Noch keine eingetragen."})}
   if(m==="anlagen"){const pl=recs("wartung").filter(([,p])=>p.anlage===id),tk=tickets().filter(([,t])=>t.anlage===id).sort((a,b)=>String(b[1].nr).localeCompare(String(a[1].nr)));
     blocks.push({h:"Wartung & Prüfungen"},pl.length?{table:{head:["Bezeichnung","Intervall","Zuletzt","Nächste"],w:[.46,.18,.18,.18],rows:pl.map(([,p])=>[p.bez||"",MODS.wartung.fields[4].ol[p.intervall||""]||"",fmtDate(p.letzte)||"–",planNext(p)?fmtDate(planNext(p)):"–"])}}:{p:"Keine."});
     blocks.push({h:"Aufträge"},tk.length?{table:{head:["Nr.","Auftrag","Status","Erledigt"],w:[.15,.5,.17,.18],rows:tk.map(([,t])=>[t.nr,t.titel||"",A_STATUS[t.status]?.[0]||"",fmtDate(t.abschluss?.datum)||"–"])}}:{p:"Keine."})}
   if(m==="schluessel"){const au=(r.ausgaben||[]).slice().sort((a,b)=>a.datum<b.datum?1:-1);
-    blocks.push({h:`Ausgaben · ${num(r.anzahl)-keyOut(r)} von ${num(r.anzahl)} verfügbar`},au.length?{table:{head:["Empfänger","Funktion / Firma","Anz.","Ausgabe","Rückgabe bis","Zurück am"],w:[.22,.22,.08,.15,.17,.16],
-      rows:au.map(a=>[a.an,a.firma||"",String(a.anz||1),fmtDate(a.datum),!a.zur&&a.bis&&daysUntil(a.bis)<0?{t:fmtDate(a.bis),c:"over"}:(fmtDate(a.bis)||"–"),a.zur?fmtDate(a.zur.datum):"offen"])}}:{p:"Noch nicht ausgegeben."})}
+    blocks.push({h:`Ausgaben · ${num(r.anzahl)-keyOut(r)} von ${num(r.anzahl)} verfügbar`},au.length?{table:{head:["Empfänger","Funktion / Firma","Anz.","Ausgabe","Ausgegeben von","Rückgabe bis","Zurück am"],w:[.18,.17,.06,.12,.17,.15,.15],
+      rows:au.map(a=>[a.an,a.firma||"",String(a.anz||1),fmtDate(a.datum),a.von||"–",!a.zur&&a.bis&&daysUntil(a.bis)<0?{t:fmtDate(a.bis),c:"over"}:(fmtDate(a.bis)||"–"),a.zur?fmtDate(a.zur.datum)+(a.zur.von?"\nvon "+a.zur.von:""):"offen"])}}:{p:"Noch nicht ausgegeben."})}
   if(m==="vertraege")blocks.splice(2,0,{kv2:[["Läuft aktuell bis",r.status==="beendet"?"beendet":fmtDate(vtEnde(r))||"–"],["Kündigen spätestens bis",vtKuend(r)?{t:fmtDate(vtKuend(r)),c:daysUntil(vtKuend(r))<=90?"over":"bold"}:"–"]]});
   if(m==="zaehler"){const u=r.einheit||"",y=new Date().getFullYear(),ys=[];for(let k=y;k>=y-4;k--){const v=zYear(r,k);if(v!=null)ys.push([`Verbrauch ${k}${k===y?" bisher":""}`,`${v.toLocaleString("de-DE")} ${u}`])}
     if(ys.length)blocks.push({h:"Verbrauch"},{kv2:ys});
@@ -3141,7 +3336,7 @@ async function recModel(m,id,r){
 }
 async function keyModel(k,a){return {title:"Schlüsselquittung",sub:`${k.nr||""} ${k.bez||""}`.trim(),right:[stand()],blocks:[
   {h:"Schlüssel"},{kv2:[["Schlüssel-Nr.",k.nr||"–"],["Bezeichnung",k.bez||"–"],["Schließung",k.schliess||"–"],["Liegenschaft",liegName(k.lieg)||"–"],["Adresse",objs.get(k.lieg)?.adresse||"–"]]},
-  {h:"Ausgabe"},{kv2:[["Empfänger",a.an],["Funktion / Firma",a.firma||"–"],["Anzahl",String(a.anz||1)],["Ausgegeben am",fmtDate(a.datum)],["Rückgabe bis",fmtDate(a.bis)||"unbefristet"],["Zurückgegeben am",a.zur?fmtDate(a.zur.datum):"–"]]},
+  {h:"Ausgabe"},{kv2:[["Empfänger",a.an],["Funktion / Firma",a.firma||"–"],["Anzahl",String(a.anz||1)],["Ausgegeben am",fmtDate(a.datum)],["Ausgegeben von",a.von||"–"],["Rückgabe bis",fmtDate(a.bis)||"unbefristet"],["Zurückgegeben am",a.zur?fmtDate(a.zur.datum):"–"],["Zurückgenommen von",a.zur?.von||"–"]].concat(a.zur?.bem?[["Bemerkung Rückgabe",a.zur.bem]]:[])},
   {p:"Der Empfänger bestätigt den Erhalt der oben genannten Schlüssel. Er verpflichtet sich, die Schlüssel sorgfältig aufzubewahren, nicht an Dritte weiterzugeben und einen Verlust unverzüglich zu melden."},
   {sig:{date:fmtDate(a.datum),img:await sigSrc(a.sig),label:`Unterschrift Empfänger (${a.an})`}}]}}
 const PDF_COLS={auftraege:[["Nr.",.1],["Titel",.23],["Liegenschaft",.17],["Gewerk",.1],["Priorität",.08],["Status",.08],["Zuständig",.12],["Frist",.12]],
@@ -3168,7 +3363,7 @@ function liegReportModel(lid){
   const o=objs.get(lid),st=stats(o),blocks=[];
   const t=(head,w,rows,empty)=>rows.length?{table:{head,w,rows,sz:8.3}}:{p:empty||"keine"};
   blocks.push({h:"Stammdaten"},{kv2:[["Adresse",o.adresse||"–"],["Nutzung",o.nutzung||"–"],["Baujahr",o.baujahr||"–"],["Letzte Begehung",fmtDate(o.datum)||"–"],["Status Begehung",(STATUS[o.status]||STATUS.offen)[0]],["Begangen von",o.bearbeiter||"–"]]});
-  blocks.push({h:"Kennzahlen"},{kv2:[["Unterverteilungen",String(st.uv)],["Sicherungen / FI",`${st.sich} / ${st.fi}`],["Leuchten",String(st.leuchten)],["Ortsveränderliche Geräte",String(st.omg)],["Brandschutztüren",String(st.tueren)],["Leitern & Tritte",`${st.lad}${st.ladDue?` (${st.ladDue} offen)`:""}`],["Mängel Zustand 3–4",{t:String(st.maengel),c:st.maengel?"over":""}]]});
+  blocks.push({h:"Kennzahlen"},{kv2:[["Unterverteilungen",String(st.uv)],["Sicherungen / FI",`${st.sich} / ${st.fi}`],["Leuchten",String(st.leuchten)],["Sonderanlagen",String(st.sonder)],["Brandschutztüren",String(st.tueren)],["Leitern & Tritte",`${st.lad}${st.ladDue?` (${st.ladDue} offen)`:""}`],["Mängel Zustand 3–4",{t:String(st.maengel),c:st.maengel?"over":""}]]});
   const mg=[];SECTIONS.filter(hasZ).forEach(s=>(o.rows[s.key]||[]).forEach(r=>{if(+r.zustand>=3)mg.push([s.label,r[s.cols[0].k]||"",r.bem||r.text||"",{t:String(r.zustand),c:"over"}])}));
   blocks.push({h:"Mängel aus der Begehung"},t(["Bereich","Element","Bemerkung","Zust."],[.22,.22,.46,.1],mg));
   const tk=tickets().filter(([,x])=>x.lieg===lid&&OPEN_ST.includes(x.status)).map(([,x])=>[x.nr,x.titel||"",x.zust||"",x.frist&&daysUntil(x.frist)<0?{t:fmtDate(x.frist),c:"over"}:fmtDate(x.frist)||"–",A_STATUS[x.status]?.[0]||""]);
@@ -3242,7 +3437,7 @@ function kostenModel(y){
 const repState={lieg:"",month:today().slice(0,7),year:String(new Date().getFullYear())};
 function reportsHTML(){
   const card=(t,d,ctl,btns)=>`<div class="modcard rep"><h2>${t}</h2><p class="note">${d}</p>${ctl||""}<div class="actions">${btns}</div></div>`;
-  const out=k=>`<button class="btn pri" type="button" data-mact="rep" data-r="${k}" data-k="save">PDF</button>${PRINT_OK?`<button class="btn" type="button" data-mact="rep" data-r="${k}" data-k="print">Drucken</button>`:""}`;
+  const out=k=>`<button class="btn" type="button" data-mact="rep" data-r="${k}" data-k="view">Ansicht</button><button class="btn pri" type="button" data-mact="rep" data-r="${k}" data-k="save">PDF</button>${PRINT_OK?`<button class="btn" type="button" data-mact="rep" data-r="${k}" data-k="print">Drucken</button>`:""}`;
   return `<section><div class="mhead"><div><h1>Berichte</h1><p class="note">Berichte werden als PDF erstellt. Listen gehen als CSV direkt nach Excel. Jede Liste und jeder einzelne Eintrag lässt sich außerdem direkt dort als PDF ausgeben.</p></div></div>
    <div class="repgrid">
     ${card("Liegenschaftsbericht","Stammdaten, Mängel aus der Begehung, offene Aufträge, Prüftermine, Leitern und Tritte, Anlagen und Schlüssel einer Liegenschaft.",`<div class="fld">${liegSelect("repLieg",repState.lieg,"Liegenschaft wählen").replace('<select id="repLieg"','<select id="repLieg" data-rep="lieg"')}</div>`,out("lieg"))}
@@ -3260,8 +3455,21 @@ async function runReport(r,k){
   else if(r==="taetig")model=termReportModel(repState.month);
   else if(r==="kosten")model=kostenModel(+repState.year||new Date().getFullYear());
   const name=r==="lieg"?`Liegenschaftsbericht ${liegName(repState.lieg)}`:r==="all"?`Gesamtübersicht ${today()}`:r==="kosten"?`Kostenübersicht ${repState.year}`:`Terminübersicht ${repState.month||"gesamt"}`;
+  if(k==="view")return openRepView(model,name);
   return outDoc([model],name,k==="print"?"print":"pdf");
 }
+/* Bericht direkt in der App anzeigen (gleiche Darstellung wie Druck/PDF), von dort PDF oder Drucken */
+let rv=null;
+function openRepView(model,name){rv={model,name};$("#imp").hidden=false;
+  $("#imp").innerHTML=`<div class="dlg rvdlg" role="dialog" aria-modal="true" aria-labelledby="rvT">
+    <div class="dlg-h"><div><h2 id="rvT">${esc(name)}</h2><p>Ansicht – so sieht der Bericht als PDF bzw. ausgedruckt aus.</p></div><button class="x" type="button" data-rv="close" aria-label="Schließen">×</button></div>
+    <div class="rvbody"><iframe class="rvframe" id="rvFrame" title="${esc(name)}"></iframe></div>
+    <div class="dlg-f"><span></span><div class="actions">${PRINT_OK?`<button class="btn" type="button" data-rv="print">Drucken</button>`:""}${canSave()?`<button class="btn pri" type="button" data-rv="pdf">PDF</button>`:""}<button class="btn" type="button" data-rv="close">Schließen</button></div></div></div>`;
+  const fr=$("#rvFrame");fr.srcdoc=modelHTML([model],name)}
+function rvClick(e){const b=e.target.closest("[data-rv]");if(!b||!rv)return;const a=b.dataset.rv,{model,name}=rv;
+  if(a==="close"){rv=null;return closeImport()}
+  if(a==="pdf")return outDoc([model],name,"pdf");
+  if(a==="print")return outDoc([model],name,"print")}
 function liegReport(lid){
   const o=objs.get(lid),st=stats(o);
   const mangel=[];SECTIONS.filter(hasZ).forEach(s=>(o.rows[s.key]||[]).forEach(r=>{if(+r.zustand>=3)mangel.push([s.label,r[s.cols[0].k]||"",r.bem||r.text||"",r.zustand])}));
@@ -3272,7 +3480,7 @@ function liegReport(lid){
   const ks=recs("schluessel").filter(([,x])=>x.lieg===lid).map(([,x])=>x);
   const t=(h,rows)=>rows.length?`<table><tr>${h.map(x=>`<th>${x}</th>`).join("")}</tr>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")}</table>`:`<p class="muted">keine</p>`;
   return docWrap("Liegenschaftsbericht",liegName(lid),`<h2>Stammdaten</h2>${kv([["Liegenschaft",esc(liegName(lid))],["Adresse",esc(o.adresse||"–")],["Nutzung",esc(o.nutzung||"–")],["Baujahr",esc(o.baujahr||"–")],["Letzte Begehung",fmtDate(o.datum)||"–"],["Status Begehung",esc((STATUS[o.status]||STATUS.offen)[0])]])}
-   <h2>Kennzahlen</h2>${kv([["Unterverteilungen / Sicherungen / FI",`${st.uv} / ${st.sich} / ${st.fi}`],["Leuchten",st.leuchten],["Ortsveränderliche Geräte",st.omg],["Brandschutztüren",st.tueren],["Leitern & Tritte",`${st.lad}${st.ladDue?` (davon ${st.ladDue} offen)`:""}`],["Mängel Zustand 3–4",st.maengel]])}
+   <h2>Kennzahlen</h2>${kv([["Unterverteilungen / Sicherungen / FI",`${st.uv} / ${st.sich} / ${st.fi}`],["Leuchten",st.leuchten],["Sonderanlagen",st.sonder],["Brandschutztüren",st.tueren],["Leitern & Tritte",`${st.lad}${st.ladDue?` (davon ${st.ladDue} offen)`:""}`],["Mängel Zustand 3–4",st.maengel]])}
    <h2>Mängel aus der Begehung</h2>${t(["Bereich","Element","Bemerkung","Zustand"],mangel.map(m=>[esc(m[0]),esc(m[1]),esc(m[2]),`<b>${m[3]}</b>`]))}
    <h2>Offene Aufträge</h2>${t(["Nr.","Auftrag","Zuständig","Frist","Status"],tk.map(x=>[esc(x.nr),esc(x.titel||""),esc(x.zust||""),`<span class="${x.frist&&daysUntil(x.frist)<0?"over":""}">${fmtDate(x.frist)}</span>`,esc(A_STATUS[x.status]?.[0]||"")]))}
    <h2>Wartung & Prüfungen</h2>${t(["Prüfung","Intervall","Zuletzt","Nächste","Dienstleister"],pl.map(p=>{const n=planNext(p);return [esc(p.bez),esc(MODS.wartung.fields[4].ol[p.intervall||""]||""),fmtDate(p.letzte)||"–",`<span class="${!n||daysUntil(n)<0?"over":""}">${n?fmtDate(n):"Termin fehlt"}</span>`,esc(p.dienst||"")]}))}
@@ -3340,6 +3548,7 @@ async function startLocal(){
   COLLS.forEach(n=>C[n].loaded=true);
   $("#bkExp").hidden=!canSave();
   if(typeof onCollChange==="function")onCollChange("*");
+  userRefresh();
   loadBkAt();rpDaily();
   if(PWA&&navigator.storage&&navigator.storage.persist){try{await navigator.storage.persist()}catch(e){}}
   if(OFFLINE)await initFile();

@@ -2,6 +2,8 @@
 
 Liegenschaften und Begehung, Aufträge mit Abzeichnen, Wartung & Prüfungen, Anlagen, Leitern & Tritte mit Prüfprotokollen, Schlüssel, Termine, Berichte, Historie und PDF-Export. Läuft nach der Einrichtung vollständig offline. Die 33 Liegenschaften sind bereits angelegt.
 
+**Bedienungsanleitung für alle Nutzer:** `Bedienungsanleitung.html` (in der App: Übersicht → **Anleitung**). Diese README richtet sich an die Einrichtung.
+
 ## Auf GitHub Pages veröffentlichen
 
 1. Auf github.com ein neues Repository anlegen, z. B. `fms` (Public).
@@ -49,6 +51,40 @@ Es geht nichts verloren: Pro Eintrag gilt der zuletzt geänderte Stand. Tabellen
 - Anlagen und Schlüssel: in der Liste → **QR-Etiketten**, oder im Eintrag → **QR-Etikett**.
 - Format wählbar (62 × 29 mm Brother, 50 × 30 mm Niimbot/Phomemo u. a., eigene Größe). **PDF zum Drucken** für AirPrint-Drucker und den PC, **Als Bild** für Bluetooth-Etikettendrucker (Bild in der App des Druckers öffnen).
 - **QR scannen** oben in der App: öffnet bei Leitern direkt das Prüfbuch, sonst den Eintrag. Wichtig: in der FMS-App scannen, nicht mit der Kamera-App (die würde Safari ohne deine Daten öffnen).
+
+## Benutzer und Rollen
+
+1. Oben rechts auf **Benutzer** tippen → eigenes Konto als **Administrator** anlegen (Name, Kürzel, PIN, Farbe).
+2. Danach unter **Benutzerverwaltung** weitere Personen anlegen. Die Benutzer kommen über den Abgleich auf alle Geräte.
+3. Beim Start fragt jedes Gerät „Wer arbeitet gerade?“. Name antippen, PIN eingeben. Über das Namensfeld oben rechts wechselst du den Benutzer.
+
+| Rolle | Darf |
+|---|---|
+| Administrator | alles, auch Benutzer anlegen, ändern, deaktivieren |
+| Verwaltung | alles außer Benutzerverwaltung |
+| Technik | Aufträge, Prüfungen, Zähler, Schlüssel, Termine bearbeiten – **nicht** löschen, Verträge nur lesen, keine Sicherung einlesen oder wiederherstellen |
+
+- Ausgeschiedene Personen **deaktivieren** statt löschen, damit die Historie nachvollziehbar bleibt.
+- Die Historie zeigt bei jedem Vorgang, **wer** ihn ausgeführt hat, und lässt sich nach Person filtern. Aufträge zeigen „angelegt von …“.
+- Abzeichnen, Prüfer, Schlüssel ausgeben/zurücknehmen sind mit dem angemeldeten Namen vorausgefüllt.
+- Die PIN schützt vor Verwechslungen, nicht vor jemandem, der das Gerät entsperrt in der Hand hat. Gerätesperre (Code/Face ID) bitte nutzen.
+
+## Aufträge und Wartungen/Prüfungen
+
+- **Aufträge** = einmalige Störungen und Reparaturen (defekter Lüfter, kaputte Steckdose, Meldung per Störmelde-QR).
+- **Wartung & Prüfungen** = wiederkehrend im festen Rhythmus (z. B. Feuerlöscher alle 2 Jahre). Sie erzeugen **keine** Aufträge mehr. Erledigt wird direkt in der Wartung mit „Durchführung speichern“; die nächste Fälligkeit rechnet sich selbst.
+- Fällt bei einer Prüfung ein Defekt auf: **„Mangel → Auftrag anlegen“** – daraus wird ein normaler Reparatur-Auftrag.
+- Bei beiden sieht man, **wer sich kümmert**: Aufträge mit „Auftrag annehmen“, Wartungen/Prüfungen mit „Übernehmen“ (gilt für die aktuelle Fälligkeit und wird nach der Durchführung wieder frei).
+
+## Aufträge annehmen
+
+Im Auftrag **„Auftrag annehmen“** tippen: Der Auftrag steht dann mit deinem Namen und Kürzel in der Liste, der Status wechselt auf „In Arbeit“. Andere sehen „Angenommen von …“ und können nach Rückfrage **„Selbst übernehmen“**. Mit **„Wieder abgeben“** wird er wieder frei. Filter: **„Noch nicht angenommen“** und **„Meine“**. Alles steht im Verlauf und in der Historie.
+
+Hinweis: Über den iCloud-Abgleich sehen die anderen die Annahme erst nach dem nächsten Abgleich. Nehmen zwei Personen denselben Auftrag fast gleichzeitig an, gilt die zuletzt gespeicherte Annahme.
+
+## Einsatzplanung
+
+Unter **Termine**: „Mitarbeiter/in“ wählen und bei mehrtägigen Einsätzen ein **Bis Datum** eintragen. Der Kalender zeigt den Einsatz an jedem Tag in der Farbe der Person. Mehrere Einsätze gleichzeitig sind erlaubt; im Termin steht dann zur Info, wo die Person sonst noch eingeplant ist. Filter **Meine Einsätze** zeigt die eigenen. Per „Kalenderdatei“ landet ein Einsatz im eigenen iPhone- oder Outlook-Kalender.
 
 ## Störmeldungen per QR-Aushang
 
