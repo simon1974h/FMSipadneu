@@ -305,7 +305,7 @@ tr.click:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 .agenda .ad{font-family:var(--f-mono);font-size:12.5px}.agenda .ad.over{color:var(--z4);font-weight:600}
 .agenda .al b{font-weight:500;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.agenda .al small{color:var(--muted);font-size:12px}
 .at,.ce{font-size:11px;font-weight:600;border-radius:5px;padding:1px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tk{background:var(--accent-soft);color:var(--accent)}.tm{background:var(--z1bg);color:var(--z1)}.wt{background:var(--z2bg);color:var(--z2)}.ld{background:var(--z3bg);color:var(--z3)}.ks{background:var(--sunk);color:var(--ink);border:1px solid var(--line)}
+.tk{background:var(--accent-soft);color:var(--accent)}.vt{background:var(--z4bg);color:var(--z4)}.tm{background:var(--z1bg);color:var(--z1)}.wt{background:var(--z2bg);color:var(--z2)}.ld{background:var(--z3bg);color:var(--z3)}.ks{background:var(--sunk);color:var(--ink);border:1px solid var(--line)}
 .cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border:1px solid var(--line);border-radius:var(--r);overflow:hidden;gap:1px;background:var(--line)}
 .cw{background:var(--sunk);font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;padding:5px 6px;letter-spacing:.06em}
 .cd{background:var(--surface);min-height:78px;padding:4px;display:flex;flex-direction:column;gap:2px;min-width:0}
@@ -570,7 +570,7 @@ async function flush(id){
   if(again[id]){again[id]=false;flush(id)}
 }
 /* ---------- Weitere Sammlungen (FMS-Module) ---------- */
-const COLLS = LAD_ONLY?["historie"]:["auftraege","wartung","anlagen","schluessel","taetig","historie"];
+const COLLS = LAD_ONLY?["historie"]:["auftraege","wartung","anlagen","schluessel","taetig","vertraege","zaehler","historie"];
 const C={};COLLS.forEach(n=>C[n]={map:new Map(),dirty:new Set(),timers:{},writing:{},again:{},ref:null});
 const clone=x=>JSON.parse(JSON.stringify(x));
 function cTouch(n,id){const c=C[n],r=c.map.get(id);if(r)r.updated=Date.now();c.dirty.add(id);clearTimeout(c.timers[id]);
@@ -966,7 +966,7 @@ async function syncApply(d){
   const plan=mergePlan(d);
   for(const op of plan.ops){if(op.kind==="obj"){if(op.op==="del")objs.delete(op.id);else objs.set(op.id,norm(clone(op.data)))}
     else{const c=C[op.n];if(!c)continue;if(op.op==="del")c.map.delete(op.id);else c.map.set(op.id,clone(op.data))}}
-  if(plan.ops.length){saveLocal();if(!active||!objs.has(active))active=sorted()[0]?.[0]||null;renderList();
+  if(plan.ops.length){fixTicketNumbers();saveLocal();if(!active||!objs.has(active))active=sorted()[0]?.[0]||null;renderList();
     if(!$("#sheet").contains(document.activeElement))renderSheet();if(typeof onCollChange==="function")onCollChange("*")}
   return plan.cnt}
 const cntTxt=c=>c.neu||c.upd||c.del?`${c.neu} neu, ${c.upd} aktualisiert${c.del?`, ${c.del} gelöscht`:""}`:"Alles schon aktuell";
@@ -1098,6 +1098,7 @@ function renderSheet(){
        </div>
        <div class="actions">
          ${LAD_ONLY?"":`<button class="btn" type="button" data-act="liegtickets">Aufträge${(()=>{const n=tickets().filter(([,t])=>t.lieg===active&&OPEN_ST.includes(t.status)).length;return n?` <span class="nb">${n}</span>`:""})()}</button><span id="mapBtns" style="display:contents">${mapBtns(o)}</span>`}
+         ${LAD_ONLY?"":`<button class="btn" type="button" data-act="meldqr" title="QR-Aushang, über den jeder eine Störung per E-Mail melden kann">Störmelde-QR</button>`}
          <button class="btn" type="button" data-act="csv"${canSave()?"":" hidden"}>CSV-Export</button>
          ${LAD_ONLY?"":`<button class="btn ghost danger" type="button" data-act="del">Löschen</button>`}
        </div>
@@ -1222,6 +1223,7 @@ document.addEventListener("click",e=>{
   if(act==="ladlist"){const m=bestandModel();return outDoc([m],`Bestandsliste Leitern und Tritte ${LAD_ONLY?(ladFilter||o.name||""):(o.name||"")}`.trim(),"pdf")}
   if(act==="liegtickets"){MS.auftraege.lieg=active;MS.auftraege.f="open";return setView("auftraege")}
   if(act==="pruef")return openPruef(b.dataset.sec,b.dataset.rid);
+  if(act==="meldqr")return openMeldQR(active);
   if(act==="qrlad"){const sec=b.dataset.sec,s=SECTIONS.find(x=>x.key===sec);
     return openLabels(o.rows[sec].filter(r=>!ladFilter||(r.lieg||"").trim()===ladFilter).map(r=>ladLabel(active,sec,r)),`QR-Etiketten ${s.label}${o.name&&!LAD_ONLY?" · "+o.name:""}`)}
   if(act==="hist")return openHistDlg();
@@ -1265,7 +1267,7 @@ const IMP_FIELDS=[
 ];
 let imp={rows:[],head:[],map:{},skipDup:true,msg:"",busy:false};
 function openImport(){imp={rows:[],head:[],map:{},skipDup:true,msg:"",busy:false};$("#imp").hidden=false;renderImport();}
-function closeImport(){scanStop();$("#imp").hidden=true;$("#imp").innerHTML="";restore=null;rpDlg=null;gs=null;lbl=null;syDlg=null;tplState=null;histDlg=false;mailImp=null;termImp=null;if(docDlg){docDlg.pages.forEach(p=>URL.revokeObjectURL(p.url));docDlg=null;renderSheet()}if(recDlg){finishNew();recDlg=null;afterRec();return}if(photo||pr){photo=null;pr=null;renderSheet()}}
+function closeImport(){scanStop();$("#imp").hidden=true;$("#imp").innerHTML="";restore=null;rpDlg=null;gs=null;lbl=null;syDlg=null;mq=null;tplState=null;histDlg=false;mailImp=null;termImp=null;if(docDlg){docDlg.pages.forEach(p=>URL.revokeObjectURL(p.url));docDlg=null;renderSheet()}if(recDlg){finishNew();recDlg=null;afterRec();return}if(photo||pr){photo=null;pr=null;renderSheet()}}
 function guessMap(head){
   const map={},used=new Set();
   IMP_FIELDS.forEach(f=>{const i=head.findIndex((h,ix)=>!used.has(ix)&&f.re.test(String(h).trim()));if(i>=0){map[f.k]=i;used.add(i)}});
@@ -1353,6 +1355,7 @@ $("#imp").addEventListener("click",e=>{
   if(rpDlg&&e.target.closest("[data-rp]"))return rpClick(e);
   if(lbl&&e.target.closest("[data-lb]"))return lblClick(e);
   if(syDlg&&e.target.closest("[data-sy]"))return syClick(e);
+  if(mq&&e.target.closest("[data-mq]"))return mqClick(e);
   if(e.target.closest("[data-sc]"))return closeImport();
   const rs=e.target.closest("[data-rs]");if(rs){if(rs.dataset.rs==="close"){if(!restore.busy){restore=null;closeImport()}}else if(!restore.busy)doRestore();return}
   if(e.target.closest("[data-ph]"))return photoClick(e);
@@ -1432,7 +1435,9 @@ function ladStatus(r){
   const d=dueInfo({pr:l.datum,frist:r.frist||"12"});
   return {cls:d.cls,txt:d.state==="ok"?"gültig bis "+d.txt:d.txt,state:d.state||"ok"};
 }
-function addMonths(iso,m){const x=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||"");if(!x)return "";const d=new Date(+x[1],+x[2]-1+ +m,+x[3]);
+/* Monate addieren mit Monatsende-Regel (31.01. + 1 Monat = 28./29.02., 31.12. − 3 Monate = 30.09.) */
+function addMonths(iso,m){const x=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||"");if(!x)return "";
+  const t=new Date(+x[1],+x[2]-1+ +m,1),last=new Date(t.getFullYear(),t.getMonth()+1,0).getDate(),d=new Date(t.getFullYear(),t.getMonth(),Math.min(+x[3],last));
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
 
 let pr=null; // {obj,sec,rid,view:null|"new"|protoId, d:draft, sigDrawn}
@@ -1788,7 +1793,7 @@ let restore=null;
 function objMerge(L,I,delRows){
   const newer=(I.updated||0)>(L.updated||0)?I:L,older=newer===I?L:I,out=clone(newer);out.rows=out.rows||{};
   const secs=new Set([...Object.keys(L.rows||{}),...Object.keys(I.rows||{})]);
-  secs.forEach(sec=>{const nr=out.rows[sec]||[],or=((older.rows||{})[sec])||[],ids=new Set(nr.map(r=>r.id));
+  secs.forEach(sec=>{const nr=(out.rows[sec]||[]).filter(r=>!r.id||!delRows.has(r.id)),or=((older.rows||{})[sec])||[],ids=new Set(nr.map(r=>r.id));
     nr.forEach(r=>{const o=or.find(x=>x.id&&x.id===r.id);if(o&&Array.isArray(o.pruef)){const pids=new Set((r.pruef||[]).map(p=>p.id));const extra=o.pruef.filter(p=>p.id&&!pids.has(p.id));if(extra.length)r.pruef=(r.pruef||[]).concat(clone(extra))}});
     or.forEach(r=>{if(r.id&&!ids.has(r.id)&&!delRows.has(r.id))nr.push(clone(r))});
     out.rows[sec]=nr});
@@ -1854,7 +1859,7 @@ async function doRestore(){
         else{const x=clone(op.data);if(mode==="db")await c.ref.doc(op.id).set(x);c.map.set(op.id,x)}}
     }catch(e){r.busy=false;r.msg=`err:Nach ${k-1} von ${ops.length} Schritten abgebrochen. Bitte erneut versuchen.`;renderRestore();if(mode!=="db")saveLocal();renderList();return}
   }
-  if(mode!=="db")saveLocal();
+  fixTicketNumbers();if(mode!=="db")saveLocal();
   const c=r.plan.cnt;restore=null;closeImport();if(!active||!objs.has(active))active=sorted()[0]?.[0]||null;
   if(LAD_ONLY&&typeof ensureBestand==="function")ensureBestand();
   const txt=`${c.neu} neu, ${c.upd} aktualisiert${c.del?`, ${c.del} gelöscht`:""}`;
@@ -2069,9 +2074,54 @@ const MODS={
       ["Status",r=>{const s=T_ST[r.status]||T_ST.geplant,past=r.status!=="erledigt"&&r.status!=="abgesagt"&&daysUntil(r.datum)<0;return `<span class="stp ${past?"st-wartet":s[1]}">${past?"Vorbei":s[0]}</span>`}]],
     csv:[["Datum",r=>fmtDate(r.datum)],["Zeit",r=>tZeit(r)],["Termin",r=>MODS.taetig.title(r)],["Art",r=>r.art||r.kat||""],["Liegenschaft",r=>liegName(r.lieg)],["Treffpunkt","ort"],
       ["Firma / Ansprechpartner","firma"],["Kontakt","kontakt"],["Status",r=>(T_ST[r.status]||T_ST.geplant)[0]],["Eingetragen von","von"],["Notiz",r=>r.notiz||r.text||""]]
+  },
+  vertraege:{label:"Verträge",single:"Vertrag",
+    fields:[{k:"nr",l:"Vertrags-Nr.",ph:"z. B. V-2024-07"},{k:"bez",l:"Gegenstand",ph:"z. B. Wartung Heizung, Unterhaltsreinigung, Winterdienst",wide:1},{k:"partner",l:"Vertragspartner",ph:"Firma"},
+      {k:"lieg",l:"Liegenschaft",t:"lieg"},{k:"kat",l:"Gewerk",t:"sel",o:["",...GEWERKE]},{k:"status",l:"Status",t:"sel",o:["aktiv","gekündigt","beendet"]},
+      {k:"beginn",l:"Vertragsbeginn",t:"date"},{k:"ende",l:"Erstes Laufzeitende",t:"date"},
+      {k:"verl",l:"Verlängerung",t:"sel",o:["12","24","6","0"],ol:{"12":"automatisch um 1 Jahr","24":"automatisch um 2 Jahre","6":"automatisch um 6 Monate","0":"keine – endet"}},
+      {k:"kfrist",l:"Kündigungsfrist (Monate)",t:"num"},{k:"kosten",l:"Kosten pro Jahr in €",t:"num"},{k:"kontakt",l:"Ansprechpartner / Kontakt",ph:"Telefon oder E-Mail"},
+      {k:"notiz",l:"Notiz",t:"area",wide:1}],
+    defaults:()=>({status:"aktiv",verl:"12",kfrist:"3"}),
+    title:r=>r.bez,
+    filter:{label:"Status",def:"aktiv",opts:[["aktiv","Laufende"],["frist","Kündigung in 90 Tagen möglich"],["all","Alle"]],
+      fn:(r,f)=>f==="all"?true:f==="aktiv"?r.status!=="beendet":(r.status==="aktiv"&&vtKuend(r)&&daysUntil(vtKuend(r))>=0&&daysUntil(vtKuend(r))<=90)},
+    sort:(a,b)=>(vtEnde(a)||"9999").localeCompare(vtEnde(b)||"9999"),
+    cols:[["Vertrag",r=>`<b>${esc(r.bez||"Ohne Gegenstand")}</b><small>${esc([r.nr,r.kat].filter(Boolean).join(" · "))}</small>`],["Vertragspartner",r=>`${esc(r.partner||"–")}${r.kontakt?`<small>${esc(r.kontakt)}</small>`:""}`],
+      ["Liegenschaft",r=>esc(liegShort(r.lieg)||"alle / mehrere")],["Läuft bis",r=>r.status==="beendet"?`<span class="due none">beendet</span>`:vtEnde(r)?dueChip(vtEnde(r)):`<span class="due none">unbefristet</span>`],
+      ["Kündigen bis",r=>r.status==="aktiv"&&vtKuend(r)?dueChip(vtKuend(r)):`<span class="due none">–</span>`],["Kosten / Jahr",r=>r.kosten?`<span class="mono">${num(r.kosten).toLocaleString("de-DE")} €</span>`:"–"],
+      ["Status",r=>`<span class="stp ${r.status==="aktiv"?"st-ok":r.status==="gekündigt"?"st-wartet":"st-off"}">${esc(r.status||"aktiv")}</span>`]],
+    csv:[["Vertrags-Nr.","nr"],["Gegenstand","bez"],["Vertragspartner","partner"],["Kontakt","kontakt"],["Liegenschaft",r=>liegName(r.lieg)],["Gewerk","kat"],["Beginn",r=>fmtDate(r.beginn)],
+      ["Läuft bis",r=>fmtDate(vtEnde(r))],["Kündigen bis",r=>fmtDate(vtKuend(r))],["Verlängerung",r=>MODS.vertraege.fields[8].ol[r.verl]||""],["Kündigungsfrist (Monate)","kfrist"],["Kosten pro Jahr €","kosten"],["Status","status"],["Notiz","notiz"]]
+  },
+  zaehler:{label:"Zähler",single:"Zähler",photos:true,
+    fields:[{k:"nr",l:"Zähler-Nr.",ph:"vom Typenschild"},{k:"bez",l:"Bezeichnung",ph:"z. B. Hauptzähler Strom",wide:1},{k:"art",l:"Art",t:"sel",o:["Strom","Gas","Wasser","Wärme","Heizöl","Sonstiges"]},
+      {k:"einheit",l:"Einheit",t:"sel",o:["kWh","m³","Liter","MWh"]},{k:"lieg",l:"Liegenschaft",t:"lieg"},{k:"ort",l:"Standort",ph:"z. B. Hausanschlussraum KG"},
+      {k:"versorger",l:"Versorger / Vertragskonto",ph:"z. B. Stadtwerke, Kunden-Nr."},{k:"notiz",l:"Notiz",t:"area",wide:1}],
+    defaults:()=>({art:"Strom",einheit:"kWh",staende:[]}),
+    title:r=>r.bez||[r.art,r.nr].filter(Boolean).join(" "),
+    filter:{label:"Art",def:"all",opts:[["all","Alle"],["Strom","Strom"],["Gas","Gas"],["Wasser","Wasser"],["Wärme","Wärme"],["alt","Ablesung älter als 3 Monate"]],
+      fn:(r,f)=>f==="all"?true:f==="alt"?(!zLast(r)||daysUntil(zLast(r).datum)<-92):r.art===f},
+    sort:(a,b)=>String(a.art||"").localeCompare(String(b.art||""))||liegShort(a.lieg).localeCompare(liegShort(b.lieg),"de"),
+    cols:[["Zähler",r=>`<b>${esc(MODS.zaehler.title(r)||"Zähler")}</b><small>${esc([r.nr,r.ort].filter(Boolean).join(" · "))}</small>`],["Art",r=>esc(r.art||"–")],["Liegenschaft",r=>esc(liegShort(r.lieg)||"–")],
+      ["Letzter Stand",r=>{const l=zLast(r);return l?`<span class="mono">${num(l.stand).toLocaleString("de-DE")} ${esc(r.einheit||"")}</span><small>${fmtDate(l.datum)}${daysUntil(l.datum)<-92?" · alt":""}</small>`:`<span class="due over">keine Ablesung</span>`}],
+      [`Verbrauch ${new Date().getFullYear()-1}`,r=>{const v=zYear(r,new Date().getFullYear()-1);return v==null?"–":`<span class="mono">${v.toLocaleString("de-DE")} ${esc(r.einheit||"")}</span>`}],
+      [`${new Date().getFullYear()} bisher`,r=>{const v=zYear(r,new Date().getFullYear());return v==null?"–":`<span class="mono">${v.toLocaleString("de-DE")} ${esc(r.einheit||"")}</span>`}]],
+    csv:[["Zähler-Nr.","nr"],["Bezeichnung","bez"],["Art","art"],["Einheit","einheit"],["Liegenschaft",r=>liegName(r.lieg)],["Standort","ort"],["Versorger","versorger"],
+      ["Letzte Ablesung",r=>fmtDate(zLast(r)?.datum)],["Letzter Stand",r=>zLast(r)?.stand??""],[`Verbrauch ${new Date().getFullYear()-1}`,r=>zYear(r,new Date().getFullYear()-1)??""],[`Verbrauch ${new Date().getFullYear()} bisher`,r=>zYear(r,new Date().getFullYear())??""]]
   }
 };
-const NAV=[["uebersicht","Übersicht"],["lieg","Liegenschaften"],["auftraege","Aufträge"],["wartung","Wartung & Prüfungen"],["anlagen","Anlagen"],["schluessel","Schlüssel"],["taetig","Termine"],["berichte","Berichte"],["historie","Historie"]];
+/* Verträge: aktuelles Laufzeitende (mit automatischer Verlängerung) und letzter Kündigungstag */
+/* frühestmögliches Vertragsende: Ist die Kündigungsfrist einer Laufzeit verstrichen (und nicht gekündigt), verlängert sich der Vertrag */
+function vtEnde(r){if(!r.ende)return "";let e=r.ende;const v=+r.verl||0;if((r.status&&r.status!=="aktiv")||!v)return e;
+  const t=today(),kf=num(r.kfrist||0);let guard=0;while(addMonths(e,-kf)<t&&guard++<200)e=addMonths(e,v);return e}
+function vtKuend(r){const e=vtEnde(r);if(!e||r.status!=="aktiv"||!(+r.verl))return "";return addMonths(e,-num(r.kfrist||0))}
+/* Zähler: Ablesungen sortiert, letzter Stand, Verbrauch je Kalenderjahr (Summe der Differenzen, Zählerwechsel beginnt neu) */
+function zList(r){return (r.staende||[]).filter(s=>s.datum&&s.stand!==""&&s.stand!=null).slice().sort((a,b)=>a.datum<b.datum?-1:a.datum>b.datum?1:(a.at||0)-(b.at||0))}
+function zLast(r){const l=zList(r);return l[l.length-1]||null}
+function zDiffs(r){const l=zList(r),out=[];for(let i=1;i<l.length;i++){if(l[i].wechsel)continue;out.push({datum:l[i].datum,von:l[i-1].datum,v:Math.round((num(l[i].stand)-num(l[i-1].stand))*100)/100})}return out}
+function zYear(r,y){const d=zDiffs(r).filter(x=>x.datum.startsWith(String(y)));return d.length?Math.round(d.reduce((a,x)=>a+x.v,0)*100)/100:null}
+const NAV=[["uebersicht","Übersicht"],["lieg","Liegenschaften"],["auftraege","Aufträge"],["wartung","Wartung & Prüfungen"],["anlagen","Anlagen"],["schluessel","Schlüssel"],["vertraege","Verträge"],["zaehler","Zähler"],["taetig","Termine"],["berichte","Berichte"],["historie","Historie"]];
 let view=LAD_ONLY?"lieg":"uebersicht";
 const MS={};Object.keys(MODS).forEach(k=>MS[k]={q:"",lieg:"",f:MODS[k].filter?.def||"all",month:today().slice(0,7)});
 let calMonth=today().slice(0,7);
@@ -2093,7 +2143,7 @@ function setView(v){
 
 /* ---------- Globale Suche (Strg/⌘ + K) ---------- */
 let gs=null;
-const GS_MODS=[["auftraege","Aufträge"],["wartung","Wartung & Prüfungen"],["anlagen","Anlagen"],["schluessel","Schlüssel"],["taetig","Termine"]];
+const GS_MODS=[["auftraege","Aufträge"],["wartung","Wartung & Prüfungen"],["anlagen","Anlagen"],["schluessel","Schlüssel"],["vertraege","Verträge"],["zaehler","Zähler"],["taetig","Termine"]];
 const normQ=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
 function hl(text,q){text=String(text||"");if(!q)return esc(text);const i=normQ(text).indexOf(q);return i<0?esc(text):esc(text.slice(0,i))+"<mark>"+esc(text.slice(i,i+q.length))+"</mark>"+esc(text.slice(i+q.length))}
 function gsSearch(raw){
@@ -2107,7 +2157,7 @@ function gsSearch(raw){
     if(lad.length<8&&hit([r.inv,r.art,r.typ,r.ort,r.lieg].join(" ")))lad.push({go:`ladder:${oid}|${sec}`,t:[r.inv,r.art||(sec==="leiter"?"Leiter":"Tritt"),r.typ].filter(Boolean).join(" · "),s:[liegShort(oid),r.ort].filter(Boolean).join(" · ")})})));
   if(lad.length)out.push(["Leitern & Tritte",lad]);
   GS_MODS.forEach(([m,label])=>{const M=MODS[m];if(!C[m])return;
-    const R=recs(m).filter(([,r])=>hit([r.nr,r.inv,r.titel,r.bez,r.text,r.zust,r.dienst,r.ort,r.kat,r.firma,r.herst,r.typ,r.sn,liegShort(r.lieg),(r.ausgaben||[]).map(a=>a.an).join(" ")].join(" ")))
+    const R=recs(m).filter(([,r])=>hit([r.nr,r.inv,r.titel,r.bez,r.text,r.zust,r.dienst,r.ort,r.kat,r.firma,r.herst,r.typ,r.sn,r.partner,r.versorger,r.art,liegShort(r.lieg),(r.ausgaben||[]).map(a=>a.an).join(" ")].join(" ")))
       .slice(0,8).map(([id,r])=>({go:m+":"+id,t:[r.nr||r.inv,M.title(r)||M.single].filter(Boolean).join(" · "),s:[m==="taetig"&&r.datum?fmtDate(r.datum):"",liegShort(r.lieg),r.ort].filter(Boolean).join(" · "),
         st:m==="auftraege"&&A_STATUS[r.status]?`<span class="stp ${A_STATUS[r.status][1]}">${A_STATUS[r.status][0]}</span>`:""}));
     if(R.length)out.push([label,R])});
@@ -2146,7 +2196,7 @@ function applyDetail(){const a=document.querySelector(".app");if(a)a.classList.t
 /* ---------- Merkliste: Personen & Firmen zum Auswählen ----------
    Die Vorschläge werden aus den vorhandenen Daten gebildet (Aufträge, Wartung, Termine, Schlüssel, Prüfungen)
    und reisen deshalb mit Sicherung und Abgleich automatisch mit. */
-const MEM_SEL='[data-rf="zust"],[data-rf="gemeldet"],[data-rf="dienst"],[data-rf="firma"],#sg-name,#hx-von,#ka-an,#ka-firma,#f-bearbeiter,[data-prf="pruefer"]';
+const MEM_SEL='[data-rf="zust"],[data-rf="gemeldet"],[data-rf="dienst"],[data-rf="firma"],[data-rf="partner"],#sg-name,#hx-von,#ka-an,#ka-firma,#f-bearbeiter,[data-prf="pruefer"]';
 const MEM_HIDE_KEY=APP_ID+"-merkliste-aus";
 function memHidden(){try{return new Set(JSON.parse(localStorage.getItem(MEM_HIDE_KEY)||"[]"))}catch(e){return new Set()}}
 function memSetHidden(h){try{localStorage.setItem(MEM_HIDE_KEY,JSON.stringify([...h]))}catch(e){}}
@@ -2157,6 +2207,7 @@ function memValues(){
   recs("auftraege").forEach(([,t])=>{add(t.zust,t.updated);add(t.gemeldet,t.updated);if(t.abschluss)add(t.abschluss.name,t.abschluss.at)});
   recs("wartung").forEach(([,p])=>{add(p.dienst,p.updated);(p.hist||[]).forEach(h=>add(h.von,p.updated))});
   recs("taetig").forEach(([,t])=>add(t.firma,t.updated));
+  recs("vertraege").forEach(([,v])=>add(v.partner,v.updated));
   recs("schluessel").forEach(([,k])=>(k.ausgaben||[]).forEach(a=>{add(a.an,a.at);add(a.firma,a.at)}));
   objs.forEach(o=>{add(o.bearbeiter,o.updated);["leiter","tritt"].forEach(s=>(o.rows[s]||[]).forEach(r=>(r.pruef||[]).forEach(p=>add(p.pruefer,+p.done||0))))});
   try{add(JSON.parse(localStorage.getItem("begehung-pruefer")||"{}").pruefer,Date.now())}catch(e){}
@@ -2206,12 +2257,14 @@ const loadQRGen=()=>loadLib("qrcode","qrcode.min.js","https://cdnjs.cloudflare.c
 const loadJsQR=()=>loadLib("jsQR","jsQR.min.js","https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js");
 async function qrMatrix(text){const Q=await loadQRGen(),q=Q(0,"M");q.addData(text);q.make();const n=q.getModuleCount(),m=[];
   for(let r=0;r<n;r++){const row=[];for(let c=0;c<n;c++)row.push(q.isDark(r,c));m.push(row)}return m}
-const QR={lad:(oid,sec,rid)=>`FMS:L:${oid}:${sec}:${rid}`,anl:id=>`FMS:A:${id}`,key:id=>`FMS:S:${id}`,obj:oid=>`FMS:O:${oid}`};
-function qrParse(t){const m=/(?:FMS|CAFM):([LASO]):(\S+)/.exec(String(t||""));return m?{k:m[1],p:m[2].split(":")}:null}
+const QR={lad:(oid,sec,rid)=>`FMS:L:${oid}:${sec}:${rid}`,anl:id=>`FMS:A:${id}`,key:id=>`FMS:S:${id}`,obj:oid=>`FMS:O:${oid}`,zae:id=>`FMS:Z:${id}`};
+function qrParse(t){const m=/(?:FMS|CAFM):([LASOZ]):(\S+)/.exec(String(t||""));return m?{k:m[1],p:m[2].split(":")}:null}
 function ladLabel(oid,sec,r){const o=objs.get(oid)||{},kind=sec==="leiter"?"Leiter":"Tritt";
   return {code:QR.lad(oid,sec,r.id),title:r.inv||kind,sub:[r.art||kind,r.typ].filter(Boolean).join(" · "),place:[LAD_ONLY?r.lieg:o.name,r.ort].filter(Boolean).join(" · ")}}
 function anlLabel(id,r){return {code:QR.anl(id),title:r.inv||"Anlage",sub:r.bez||"",place:[liegShort(r.lieg),r.ort].filter(Boolean).join(" · ")}}
 function keyLabel(id,r){return {code:QR.key(id),title:r.nr||"Schlüssel",sub:r.bez||"",place:[liegShort(r.lieg),r.schliess].filter(Boolean).join(" · ")}}
+function zLabel(id,r){return {code:QR.zae(id),title:[r.art,r.nr].filter(Boolean).join(" ")||"Zähler",sub:r.bez||"",place:[liegShort(r.lieg),r.ort].filter(Boolean).join(" · "),foot:"Scannen und Zählerstand erfassen"}}
+function recLabel(m,id,r){return m==="anlagen"?anlLabel(id,r):m==="zaehler"?zLabel(id,r):keyLabel(id,r)}
 
 const LBL_FMT=[["62x29","62 × 29 mm (z. B. Brother DK-11209)",62,29],["62x40","62 × 40 mm (Brother 62-mm-Endlosband)",62,40],["50x30","50 × 30 mm (z. B. Niimbot, Phomemo)",50,30],["40x30","40 × 30 mm",40,30],["40x20","40 × 20 mm",40,20],["eigen","Eigene Größe …",0,0]];
 const LBL_KEY=APP_ID+"-etikett";
@@ -2223,7 +2276,7 @@ function lblLayout(it,w,h,measure){
   const fit=(t,sz,b)=>{t=String(t||"");if(!t||measure(t,sz,b)<=tw)return t;while(t.length>1&&measure(t+"…",sz,b)>tw)t=t.slice(0,-1);return t+"…"};
   const lines=[],avail=h-2*M;let y=M;
   const spec=[[it.title,Math.min(avail*.3,6.2),true],[it.sub,Math.min(avail*.17,3.6),false],[it.place,Math.min(avail*.15,3.2),false]];
-  if(avail>=22)spec.push(["In der FMS-App scannen",Math.min(avail*.1,2.3),false,true]);
+  if(avail>=22)spec.push([it.foot||"In der FMS-App scannen",Math.min(avail*.1,2.3),false,true]);
   for(const [t,sz,b,muted] of spec){if(!t)continue;if(y+sz*1.05>h-M+.01)break;lines.push({t:fit(t,sz,b),sz,b,muted,base:y+sz*.82,x:tx});y+=sz*1.3}
   return {M,qr,qx:M,qy:(h-qr)/2,lines,tw}}
 async function lblCanvas(it,w,h,dpi){
@@ -2292,6 +2345,35 @@ document.addEventListener("change",e=>{if(!lbl)return;const t=e.target;
   else if(t.dataset&&t.dataset.lbi!=null){const i=+t.dataset.lbi;t.checked?lbl.sel.add(i):lbl.sel.delete(i);renderLabels()}});
 document.addEventListener("input",e=>{if(!lbl)return;const t=e.target;if(t.id==="lbW"||t.id==="lbH"){lbl[t.id==="lbW"?"w":"h"]=t.value;lblSavePrefs();clearTimeout(t._t);t._t=setTimeout(lblPreview,300)}});
 
+/* ---------- Störmelde-QR: Aushang, über den jeder (ohne App) eine Störung per E-Mail meldet ----------
+   Der QR-Code führt auf melden.html (liegt neben der App auf GitHub Pages). Die Mail kommt beim Hausmeister an
+   und wird mit „Aus E-Mail“ zum Auftrag – Liegenschaft, Ort und Dringlichkeit werden dabei erkannt. */
+const MQ_KEY=APP_ID+"-stoermeldung";
+let mq=null;
+function mqPrefs(){let p={to:"",url:""};try{Object.assign(p,JSON.parse(localStorage.getItem(MQ_KEY)||"{}"))}catch(e){}
+  if(!p.url&&/^https?:$/.test(location.protocol)&&!/^(localhost|127\.)/.test(location.hostname))p.url=location.origin+location.pathname.replace(/[^/]*$/,"");return p}
+function openMeldQR(oid){const p=mqPrefs();mq={oid,to:p.to,url:p.url,rooms:"",msg:""};$("#imp").hidden=false;renderMQ()}
+function renderMQ(){const s=mq,o=objs.get(s.oid);if(!o)return closeImport();
+  $("#imp").innerHTML=`<div class="dlg" role="dialog" aria-modal="true" aria-labelledby="mqT" style="max-width:640px">
+    <div class="dlg-h"><div><h2 id="mqT">Störmelde-QR für ${esc(o.name||"Liegenschaft")}</h2><p>Aushang für Kita-Personal, Gemeinde oder Gäste: Code mit der Handy-Kamera scannen, kurz beschreiben, E-Mail geht an dich. Mit „Aus E-Mail“ wird daraus ein Auftrag.</p></div><button class="x" type="button" data-mq="close" aria-label="Schließen">×</button></div>
+    <div class="dlg-b"><div class="form plain">
+      <div class="fld"><label for="mq-to">Meldungen per E-Mail an</label><input id="mq-to" type="email" value="${esc(s.to)}" placeholder="hausmeister@…" autocomplete="email"></div>
+      <div class="fld"><label for="mq-url">Adresse der Web-App (GitHub Pages)</label><input id="mq-url" value="${esc(s.url)}" placeholder="https://name.github.io/fms/"></div>
+      <div class="fld wide"><label for="mq-rooms">Räume, je Zeile ein Etikett (leer = ein Etikett für das ganze Gebäude)</label><textarea id="mq-rooms" placeholder="Gruppenraum 1&#10;Gruppenraum 2&#10;Küche&#10;Personal-WC">${esc(s.rooms)}</textarea></div></div>
+      <p class="note" style="margin:0">Die E-Mail-Adresse steht im QR-Code und ist damit für jeden lesbar, der den Code scannt. Am besten eine Funktionsadresse verwenden.</p>
+      ${s.msg?`<div class="msg err">${esc(s.msg)}</div>`:""}</div>
+    <div class="dlg-f"><span></span><div class="actions"><button class="btn" type="button" data-mq="close">Abbrechen</button><button class="btn pri" type="button" data-mq="go">Etiketten erstellen</button></div></div></div>`}
+function mqClick(e){const b=e.target.closest("[data-mq]");if(!b||!mq)return;if(b.dataset.mq==="close"){mq=null;return closeImport()}
+  const s=mq;s.to=$("#mq-to").value.trim();s.url=$("#mq-url").value.trim();s.rooms=$("#mq-rooms").value;
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(s.to)){s.msg="Bitte eine gültige E-Mail-Adresse eintragen.";return renderMQ()}
+  if(!/^https:\/\/[^\s]+$/i.test(s.url)){s.msg="Bitte die Adresse der Web-App eintragen (beginnt mit https://), z. B. https://name.github.io/fms/";return renderMQ()}
+  let base=s.url.replace(/(index\.html|melden\.html)?([?#].*)?$/,"");if(!base.endsWith("/"))base+="/";
+  try{localStorage.setItem(MQ_KEY,JSON.stringify({to:s.to,url:base}))}catch(_){}
+  const o=objs.get(s.oid),ln=liegName(s.oid),rooms=s.rooms.split("\n").map(x=>x.trim()).filter(Boolean);
+  const items=(rooms.length?rooms:[""]).map(rm=>({code:`${base}melden.html?l=${encodeURIComponent(ln)}${rm?`&o=${encodeURIComponent(rm)}`:""}&t=${encodeURIComponent(s.to)}`,
+    title:"Störung melden",sub:rm||"Defekt entdeckt?",place:o.name||ln,foot:"Mit der Handy-Kamera scannen"}));
+  mq=null;openLabels(items,"Störmelde-QR "+(o.name||""))}
+
 /* Scanner: Kamera im Programm (die iPad-Kamera-App würde Safari ohne deine Daten öffnen) */
 let scan=null;const scCanvas=document.createElement("canvas");
 function scanFrame(src,sw,sh,max,both){const s=Math.min(1,(max||800)/Math.max(sw,sh)),w=Math.round(sw*s),h=Math.round(sh*s);scCanvas.width=w;scCanvas.height=h;
@@ -2315,9 +2397,10 @@ function scanLoop(){const s=scan;if(!s||!s.stream)return;const v=$("#scVid");
 function scanStop(){if(!scan)return;clearTimeout(scan.timer);if(scan.stream)scan.stream.getTracks().forEach(t=>t.stop());scan=null}
 function scanHit(t){const q=qrParse(t);if(!q){scanMsg("Das ist kein Etikett aus dieser App.","err");return false}
   const [a,b,c]=q.p;let go=null;
-  if(q.k==="L"){const o=objs.get(a),r=o&&(o.rows[b]||[]).find(x=>x.id===c);if(r)go=()=>{active=a;tab=LAD_ONLY?b:"leiter";if(!LAD_ONLY)sub.leiter=b;detailOn=true;setView("lieg");openPruef(b,c)}}
+  if(q.k==="L"){const o=objs.get(a),r=o&&Array.isArray(o.rows[b])&&o.rows[b].find(x=>x.id===c);if(r)go=()=>{active=a;tab=LAD_ONLY?b:"leiter";if(!LAD_ONLY)sub.leiter=b;detailOn=true;setView("lieg");openPruef(b,c)}}
   else if(q.k==="A"&&C.anlagen&&C.anlagen.map.has(a))go=()=>{setView("anlagen");openRec("anlagen",a)};
   else if(q.k==="S"&&C.schluessel&&C.schluessel.map.has(a))go=()=>{setView("schluessel");openRec("schluessel",a)};
+  else if(q.k==="Z"&&C.zaehler&&C.zaehler.map.has(a))go=()=>{setView("zaehler");openRec("zaehler",a);setTimeout(()=>{const i=$("#zs-stand");if(i)i.focus()},60)};
   else if(q.k==="O"&&objs.has(a))go=()=>{active=a;tab="stamm";detailOn=true;setView("lieg")};
   if(!go){scanMsg("Eintrag nicht gefunden – gelöscht oder auf diesem Gerät noch nicht abgeglichen.","err");return false}
   try{navigator.vibrate&&navigator.vibrate(60)}catch(e){}
@@ -2345,14 +2428,23 @@ function autoGenerate(){
   recs("wartung").forEach(([pid,p])=>{
     if(p.auto==="nein")return;const n=planNext(p);if(!n)return;
     if(daysUntil(n)>num(p.vorlauf||30))return;if(openTicketFor("planId",pid))return;if(p.lastGen===n)return;
-    createTicket({titel:p.bez,lieg:p.lieg,anlage:p.anlage||"",kat:p.kat||"",zust:p.dienst||"",frist:n,planId:pid,quelle:"Wartungsplan",
-      text:[p.grundlage?"Grundlage: "+p.grundlage:"",p.notiz||""].filter(Boolean).join("\n")},"Automatisch aus Wartungsplan angelegt");
-    p.lastGen=n;cTouch("wartung",pid);made++;
+    /* feste ID je Plan und Fälligkeit: legen iPad und PC denselben Auftrag an, wird er beim Abgleich zu einem */
+    const tid="auto-"+pid+"-"+n;
+    if(!C.auftraege.map.has(tid)){createTicket({titel:p.bez,lieg:p.lieg,anlage:p.anlage||"",kat:p.kat||"",zust:p.dienst||"",frist:n,planId:pid,quelle:"Wartungsplan",
+      text:[p.grundlage?"Grundlage: "+p.grundlage:"",p.notiz||""].filter(Boolean).join("\n")},"Automatisch aus Wartungsplan angelegt",tid);made++}
+    p.lastGen=n;cTouch("wartung",pid);
   });
   if(made){setSave("ok",`${made} Auftr${made>1?"äge":"ag"} aus Wartungsplänen angelegt`);renderNav();if(view!=="lieg")renderMod()}
 }
-function createTicket(data,logTxt){
-  const id=newRecId("auftraege");const t=Object.assign(MODS.auftraege.defaults(),data);
+/* Nach Abgleich/Einlesen: doppelt vergebene Auftragsnummern (auf zwei Geräten gleichzeitig angelegt) eindeutig machen.
+   Feste Regel (ältester Auftrag behält die Nummer), damit beide Geräte zum selben Ergebnis kommen. */
+function fixTicketNumbers(){const by={};let n=0;
+  tickets().forEach(([id,t])=>{if(t.nr)(by[t.nr]=by[t.nr]||[]).push([id,t])});
+  Object.values(by).filter(g=>g.length>1).forEach(g=>{g.sort((a,b)=>(a[1].log?.[0]?.at||0)-(b[1].log?.[0]?.at||0)||String(a[0]).localeCompare(String(b[0])));
+    g.slice(1).forEach(([id,t])=>{const old=t.nr;t.nr=nextTicketNr();addLog(t,`Auftrags-Nr. ${old} war doppelt vergeben (iPad/PC) – neu: ${t.nr}`);cTouch("auftraege",id);n++})});
+  if(n)setSave("ok",`${n} doppelte Auftragsnummer${n>1?"n":""} neu vergeben`);return n}
+function createTicket(data,logTxt,fixedId){
+  const id=fixedId||newRecId("auftraege");const t=Object.assign(MODS.auftraege.defaults(),data);
   if(logTxt)t.log=[{at:Date.now(),t:logTxt}];
   C.auftraege.map.set(id,t);cTouch("auftraege",id);
   if(t.titel)histOpen["rec:auftraege:"+id]={id:histAdd(Object.assign({act:"angelegt",fields:[],note:logTxt||""},recInfo("auftraege",id,t))),at:Date.now()};
@@ -2375,7 +2467,7 @@ function filtered(m){
     if(st.lieg&&r.lieg!==st.lieg)return false;
     if(M.filter&&!M.filter.fn(r,st.f))return false;
     if(M.month&&st.month&&!(r.datum||"").startsWith(st.month))return false;
-    if(q&&!JSON.stringify([r.nr,r.inv,r.titel,r.bez,r.text,r.zust,r.dienst,r.ort,r.kat,liegShort(r.lieg),r.herst,r.typ,(r.ausgaben||[]).map(a=>a.an)]).toLowerCase().includes(q))return false;
+    if(q&&!JSON.stringify([r.nr,r.inv,r.titel,r.bez,r.text,r.zust,r.dienst,r.ort,r.kat,liegShort(r.lieg),r.herst,r.typ,r.partner,r.versorger,r.art,(r.ausgaben||[]).map(a=>a.an)]).toLowerCase().includes(q))return false;
     return true}).sort(M.sort);
 }
 function monthOpts(sel){const ms=new Set([today().slice(0,7)]);recs("taetig").forEach(([,r])=>{if(r.datum)ms.add(r.datum.slice(0,7))});
@@ -2386,7 +2478,7 @@ function listHTML(m){
 
   return `<section class="modcard">
     <div class="mhead"><div><h1>${M.label}</h1><p class="note">${rows.length} von ${total} angezeigt</p></div>
-      <div class="actions">${m==="wartung"?`<button class="btn" type="button" data-mact="tpl">Vorlagen</button>`:""}${m==="auftraege"?`<button class="btn" type="button" data-mact="mailimp">Aus E-Mail</button>`:""}${m==="taetig"?`<button class="btn" type="button" data-mact="termimp">Aus E-Mail / Einladung</button>`:""}${canSave()?`<button class="btn" type="button" data-mact="pdf">PDF</button>`:""}${(m==="anlagen"||m==="schluessel")&&rows.length?`<button class="btn" type="button" data-mact="qr">QR-Etiketten</button>`:""}<button class="btn" type="button" data-mact="csv">CSV-Export</button><button class="btn pri" type="button" data-mact="new">+ ${M.single}</button></div></div>
+      <div class="actions">${m==="wartung"?`<button class="btn" type="button" data-mact="tpl">Vorlagen</button>`:""}${m==="auftraege"?`<button class="btn" type="button" data-mact="mailimp">Aus E-Mail</button>`:""}${m==="taetig"?`<button class="btn" type="button" data-mact="termimp">Aus E-Mail / Einladung</button>`:""}${canSave()?`<button class="btn" type="button" data-mact="pdf">PDF</button>`:""}${(m==="anlagen"||m==="schluessel"||m==="zaehler")&&rows.length?`<button class="btn" type="button" data-mact="qr">QR-Etiketten</button>`:""}<button class="btn" type="button" data-mact="csv">CSV-Export</button><button class="btn pri" type="button" data-mact="new">+ ${M.single}</button></div></div>
     <div class="mfilter">
       <input type="search" id="mq" placeholder="Suchen …" value="${esc(st.q)}" aria-label="Suchen">
       ${liegSelect("mlieg",st.lieg)}
@@ -2411,7 +2503,8 @@ document.addEventListener("click",e=>{
   else if(a==="csv")exportModCSV(view,filtered(view));
   else if(a==="pdf"&&MODS[view])outDoc([listModel(view,filtered(view))],`${MODS[view].label} ${today()}`,"pdf");
   else if(a==="tpl")openTemplates();
-  else if(a==="qr"&&(view==="anlagen"||view==="schluessel"))openLabels(filtered(view).map(r=>view==="anlagen"?anlLabel(r._id,r):keyLabel(r._id,r)),`QR-Etiketten ${MODS[view].label}`);
+  else if(a==="ics")exportFristen();
+  else if(a==="qr"&&(view==="anlagen"||view==="schluessel"||view==="zaehler"))openLabels(filtered(view).map(r=>recLabel(view,r._id,r)),`QR-Etiketten ${MODS[view].label}`);
   else if(a==="mailimp")openMailImp();
   else if(a==="termimp")openTermImp();
   else if(a==="calprev"||a==="calnext"){const [y,m]=calMonth.split("-").map(Number);const d=new Date(y,m-1+(a==="calnext"?1:-1),1);calMonth=ISO(d).slice(0,7);renderMod()}
@@ -2425,6 +2518,9 @@ function agendaItems(){
   tickets().forEach(([id,t])=>{if(OPEN_ST.includes(t.status)&&t.frist)it.push({d:t.frist,type:"Auftrag",cls:"tk",label:`${t.nr} ${t.titel||""}`,lieg:t.lieg,open:`auftraege:${id}`})});
   recs("wartung").forEach(([id,p])=>{const n=planNext(p);if(n&&!openTicketFor("planId",id))it.push({d:n,type:"Wartung",cls:"wt",label:p.bez||"Wartung",lieg:p.lieg,open:`wartung:${id}`})});
   recs("schluessel").forEach(([id,k])=>keyOpen(k).forEach(a=>{if(a.bis)it.push({d:a.bis,type:"Schlüssel",cls:"ks",label:`Rückgabe ${k.bez||k.nr}: ${a.an}`,lieg:k.lieg,open:`schluessel:${id}`})}));
+  recs("vertraege").forEach(([id,v])=>{if(v.status==="beendet")return;const k=vtKuend(v),e=vtEnde(v);
+    if(k&&daysUntil(k)>=-7)it.push({d:k,type:"Vertrag",cls:"vt",label:`Kündigen bis: ${v.bez||"Vertrag"}${v.partner?" ("+v.partner+")":""}`,lieg:v.lieg,open:`vertraege:${id}`});
+    else if(e&&!(+v.verl)&&daysUntil(e)>=0)it.push({d:e,type:"Vertrag",cls:"vt",label:`Vertragsende: ${v.bez||"Vertrag"}`,lieg:v.lieg,open:`vertraege:${id}`})});
   recs("taetig").forEach(([id,t])=>{if(t.datum&&t.status!=="abgesagt"&&t.status!=="erledigt"&&daysUntil(t.datum)>=0)it.push({d:t.datum,type:"Termin",cls:"tm",label:`${t.zeit?t.zeit+" ":""}${MODS.taetig.title(t)||"Termin"}`,lieg:t.lieg,open:`taetig:${id}`,k:t.zeit||""})});
   objs.forEach((o,oid)=>["leiter","tritt"].forEach(sec=>(o.rows[sec]||[]).forEach(r=>{const n=ladNext(r);if(n)it.push({d:n,type:sec==="leiter"?"Leiter":"Tritt",cls:"ld",label:`Prüfung ${r.inv||r.art||""}`,lieg:oid,open:`ladder:${oid}|${sec}`})})));
   return it.sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:(a.k||"99")<(b.k||"99")?-1:1);
@@ -2443,7 +2539,7 @@ function dashHTML(){
   const tile=(l,v,sub,cls,go)=>`<button type="button" class="tile ${cls||""}" data-view="${go}"><span class="tl">${l}</span><span class="tv">${v}</span><span class="ts">${sub}</span></button>`;
   return `<section class="dash">
     <div class="mhead"><div><h1>Übersicht</h1><p class="note">${new Date().toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long",year:"numeric"})} · ${objs.size} Liegenschaften</p></div>
-      <div class="actions">${PWA?`<button class="btn" type="button" data-sy="open" title="Letzter Abgleich: ${syncWhen()}">Abgleichen</button>`:""}<button class="btn" type="button" data-mact="mailimp">Aus E-Mail</button><button class="btn pri" type="button" data-mact="new" data-quick="1">+ Auftrag</button></div></div>
+      <div class="actions">${PWA?`<button class="btn" type="button" data-sy="open" title="Letzter Abgleich: ${syncWhen()}">Abgleichen</button>`:""}<button class="btn" type="button" data-mact="ics" title="Alle Fristen der nächsten 13 Monate mit Erinnerung für iPhone-, iPad- oder Outlook-Kalender">Fristen → Kalender</button><button class="btn" type="button" data-mact="mailimp">Aus E-Mail</button><button class="btn pri" type="button" data-mact="new" data-quick="1">+ Auftrag</button></div></div>
     ${bkBannerHTML()}
     <div class="tiles">
       ${tile("Offene Aufträge",ot.length,tov?`${tov} überfällig`:"keine überfällig",tov?"crit":"","auftraege")}
@@ -2452,6 +2548,8 @@ function dashHTML(){
       ${tile("Leitern & Tritte",ladBad,`von ${lad} offen / gesperrt`,ladBad?"crit":"","lieg")}
       ${tile("Schlüssel ausgegeben",kOut,kOver?`${kOver} Rückgabe überfällig`:"keine überfällig",kOver?"crit":"","schluessel")}
       ${tile("Termine nächste 7 Tage",tw.length,th?`heute: ${th}`:"heute keine","","taetig")}
+      ${(()=>{const vs=recs("vertraege").filter(([,v])=>v.status==="aktiv"&&vtKuend(v)&&daysUntil(vtKuend(v))>=0&&daysUntil(vtKuend(v))<=90).length;return recs("vertraege").length?tile("Verträge",vs,vs?"Kündigung in 90 Tagen möglich":"keine Kündigungsfrist in 90 Tagen",vs?"warn":"","vertraege"):""})()}
+      ${(()=>{const zs=recs("zaehler"),alt=zs.filter(([,z])=>!zLast(z)||daysUntil(zLast(z).datum)<-92).length;return zs.length?tile("Zähler",alt,alt?"Ablesung älter als 3 Monate":"alle aktuell abgelesen",alt?"warn":"","zaehler"):""})()}
     </div>
     <div class="dgrid">
       <div class="modcard"><div class="mhead sm"><h2>Anstehend in den nächsten 30 Tagen</h2></div>
@@ -2476,7 +2574,7 @@ function calHTML(ag){
   return `<div class="mhead sm"><h2>${first.toLocaleDateString("de-DE",{month:"long",year:"numeric"})}</h2>
     <div class="actions"><button class="btn sm" type="button" data-mact="calprev" aria-label="Vorheriger Monat">‹</button><button class="btn sm" type="button" data-mact="calnext" aria-label="Nächster Monat">›</button></div></div>
     <div class="cal"><div class="cw">Mo</div><div class="cw">Di</div><div class="cw">Mi</div><div class="cw">Do</div><div class="cw">Fr</div><div class="cw">Sa</div><div class="cw">So</div>${cells}</div>
-    <div class="legend"><span class="ce tk">Auftrag</span><span class="ce wt">Wartung</span><span class="ce ld">Leiter / Tritt</span><span class="ce ks">Schlüssel</span><span class="ce tm">Termin</span></div>`;
+    <div class="legend"><span class="ce tk">Auftrag</span><span class="ce wt">Wartung</span><span class="ce ld">Leiter / Tritt</span><span class="ce ks">Schlüssel</span><span class="ce vt">Vertrag</span><span class="ce tm">Termin</span></div>`;
 }
 
 /* ---------- Datensatz bearbeiten ---------- */
@@ -2502,7 +2600,7 @@ function recField(f,r){
 function renderRec(){
   const {m,id}=recDlg,M=MODS[m],r=C[m].map.get(id);if(!r){closeImport();return}
   const locked=m==="auftraege"&&r.status==="erledigt";
-  const extras=m==="taetig"?termExtras(r,id):m==="auftraege"?ticketExtras(r,id):m==="wartung"?planExtras(r,id):m==="anlagen"?assetExtras(r,id):m==="schluessel"?keyExtras(r,id):"";
+  const extras=m==="taetig"?termExtras(r,id):m==="auftraege"?ticketExtras(r,id):m==="wartung"?planExtras(r,id):m==="anlagen"?assetExtras(r,id):m==="schluessel"?keyExtras(r,id):m==="vertraege"?vtExtras(r,id):m==="zaehler"?zExtras(r,id):"";
   $("#imp").innerHTML=`<div class="dlg" role="dialog" aria-modal="true" aria-labelledby="rdT" style="max-width:860px">
     <div class="dlg-h"><div><h2 id="rdT">${esc(M.title(r)||(recDlg.isNew?"Neu: "+M.single:M.single))}</h2><p>${esc(M.single)}${r.nr||r.inv?" · "+esc(r.nr||r.inv):""}${r.lieg?" · "+esc(liegName(r.lieg)):""}</p></div>
       <button class="x" type="button" data-rd="close" aria-label="Schließen">×</button></div>
@@ -2513,7 +2611,7 @@ function renderRec(){
       ${extras}
     </div>
     <div class="dlg-f"><button class="btn ghost danger" type="button" data-rd="del">Löschen</button>
-      <div class="actions">${m==="anlagen"||m==="schluessel"?`<button class="btn" type="button" data-rd="qr">QR-Etikett</button>`:""}${canSave()?`<button class="btn" type="button" data-rd="pdf">PDF</button>`:""}<button class="btn pri" type="button" data-rd="close">Fertig</button></div></div></div>`;
+      <div class="actions">${m==="anlagen"||m==="schluessel"||m==="zaehler"?`<button class="btn" type="button" data-rd="qr">QR-Etikett</button>`:""}${canSave()?`<button class="btn" type="button" data-rd="pdf">PDF</button>`:""}<button class="btn pri" type="button" data-rd="close">Fertig</button></div></div></div>`;
   hydrateImgs($("#imp"));
   document.querySelectorAll("#imp canvas[data-sig]").forEach(c=>{recDlg.ui.pads=recDlg.ui.pads||{};recDlg.ui.pads[c.dataset.sig]=makeSigPad(c,()=>recReady())});
   recReady();
@@ -2582,6 +2680,22 @@ function keyExtras(r,id){
      <div class="sigwrap"><span class="lbl">Unterschrift Empfänger</span><canvas class="sigpad" data-sig="key"></canvas><div class="actions"><button class="btn sm ghost" type="button" data-rd="sigclear" data-k="key">Unterschrift löschen</button></div></div>
      <div class="actions" style="justify-content:space-between"><span class="note" id="kaHint"></span><button class="btn pri" type="button" data-rd="kout" id="kaBtn" disabled>Ausgabe erfassen</button></div></div>`;
 }
+function vtExtras(r,id){const e=vtEnde(r),k=vtKuend(r);
+  return `<dl class="meta"><div><dt>Läuft aktuell bis</dt><dd>${r.status==="beendet"?"beendet":e?dueChip(e):"unbefristet / Datum fehlt"}</dd></div>
+    <div><dt>Kündigen spätestens bis</dt><dd>${k?dueChip(k):(+r.verl?"Laufzeitende eintragen":"keine Kündigung nötig")}</dd></div>
+    <div><dt>Kosten pro Jahr</dt><dd>${r.kosten?num(r.kosten).toLocaleString("de-DE")+" €":"–"}</dd></div></dl>
+    <p class="note" style="margin:0">Die Kündigungsfrist erscheint in der Übersicht, im Kalender und in der Kalenderdatei „Fristen“. Bei automatischer Verlängerung wird das Laufzeitende fortgeschrieben.</p>`}
+function zExtras(r,id){const l=zList(r).slice().reverse(),last=zLast(r),u=esc(r.einheit||""),y=new Date().getFullYear(),ys=[];
+  for(let k=y;k>=y-4;k--){const v=zYear(r,k);if(v!=null)ys.push([k,v])}
+  const prev=s=>{const all=zList(r),i=all.indexOf(s);return i>0&&!s.wechsel?Math.round((num(s.stand)-num(all[i-1].stand))*100)/100:null};
+  return `<div class="signbox"><h3>Zählerstand erfassen</h3><div class="form plain">
+      <div class="fld"><label for="zs-datum">Datum</label><input type="date" id="zs-datum" value="${today()}"></div>
+      <div class="fld"><label for="zs-stand">Stand in ${u||"Einheit"}</label><input id="zs-stand" inputmode="decimal" placeholder="${last?esc(String(last.stand)):"z. B. 12345,6"}"></div>
+      <label class="chk" style="align-self:end;padding-bottom:10px"><input type="checkbox" id="zs-wechsel"> Zählerwechsel (neuer Zähler startet hier)</label></div>
+      <div class="actions" style="justify-content:space-between"><span class="note" id="zsHint">${last?`Letzter Stand: ${num(last.stand).toLocaleString("de-DE")} ${u} am ${fmtDate(last.datum)}`:"Noch keine Ablesung."}</span><button class="btn pri" type="button" data-rd="zadd">Stand speichern</button></div></div>
+    ${ys.length?`<dl class="meta">${ys.map(([k,v])=>`<div><dt>Verbrauch ${k}${k===y?" bisher":""}</dt><dd>${v.toLocaleString("de-DE")} ${u}</dd></div>`).join("")}</dl><p class="note" style="margin:0">Verbrauch je Jahr = Summe der Differenzen zwischen den Ablesungen, die im Jahr liegen. Für genaue Jahreswerte jeweils zum Jahreswechsel ablesen.</p>`:""}
+    <div class="fld wide"><span class="lbl">Ablesungen (${l.length})</span>${l.length?`<div class="tw"><table class="mt" style="min-width:420px"><thead><tr><th>Datum</th><th style="text-align:right">Stand</th><th style="text-align:right">Verbrauch seit vorher</th><th></th></tr></thead><tbody>
+      ${l.map(s=>{const d=prev(s);return `<tr><td class="mono">${fmtDate(s.datum)}${s.wechsel?' <span class="stp st-wartet">Wechsel</span>':""}</td><td class="mono" style="text-align:right">${num(s.stand).toLocaleString("de-DE")} ${u}</td><td class="mono" style="text-align:right;${d!=null&&d<0?"color:var(--z4)":""}">${d==null?"–":d.toLocaleString("de-DE")+" "+u}</td><td style="width:44px"><button class="x" type="button" data-rd="zdel" data-id="${esc(s.id)}" aria-label="Ablesung löschen">×</button></td></tr>`}).join("")}</tbody></table></div>`:`<p class="note">Noch keine.</p>`}</div>`}
 function makeSigPad(c,onDraw){
   const dpr=window.devicePixelRatio||1,w=c.clientWidth||400,h=c.clientHeight||150;c.width=w*dpr;c.height=h*dpr;const g=c.getContext("2d");g.scale(dpr,dpr);
   const reset=()=>{g.fillStyle="#fff";g.fillRect(0,0,w,h);g.fillStyle="#9aa8b0";g.font="12px sans-serif";g.fillText("Hier unterschreiben",10,h-10);pad.drawn=false;hint=true};
@@ -2606,7 +2720,7 @@ async function recClick(e){
   const b=e.target.closest("[data-rd]");if(!b)return;const a=b.dataset.rd;const {m,id}=recDlg;const r=C[m].map.get(id);if(!r)return closeImport();
   if(b.tagName==="A")e.preventDefault();
   if(a==="close")return closeImport();
-  if(a==="qr"){const it=m==="anlagen"?anlLabel(id,r):keyLabel(id,r);finishNew();recDlg=null;afterRec();return openLabels([it],"QR-Etikett "+it.title)}
+  if(a==="qr"){const it=recLabel(m,id,r);finishNew();recDlg=null;afterRec();return openLabels([it],"QR-Etikett "+it.title)}
   if(a==="del"){const M=MODS[m],info=recInfo(m,id,r),out=m==="schluessel"?keyOut(r):0;
     return confirmDelete({title:M.single,label:info.label,lines:[info.liegName,m==="auftraege"?`Status: ${A_STATUS[r.status]?.[0]||r.status||""}`:""],
       warn:m==="auftraege"&&r.status==="erledigt"?"Dieser Auftrag ist bereits abgezeichnet.":out?`Von diesem Schlüssel sind noch ${out} Exemplar${out>1?"e":""} ausgegeben.`:"",
@@ -2640,18 +2754,27 @@ async function recClick(e){
     r.ausgaben=(r.ausgaben||[]).concat({id:"k"+rid(),an:$("#ka-an").value.trim(),firma:$("#ka-firma").value.trim(),anz:$("#ka-anz").value||"1",datum:$("#ka-datum").value||today(),bis:$("#ka-bis").value,sig,at:Date.now()});
     cTouch(m,id);histAdd(Object.assign({act:"Schlüssel ausgegeben",note:`an ${r.ausgaben[r.ausgaben.length-1].an}`},recInfo(m,id,r)));recDlg.ui={};return renderRec()}
   if(a==="kret"){const x=(r.ausgaben||[]).find(z=>z.id===b.dataset.id);if(x){x.zur={datum:today(),at:Date.now()};cTouch(m,id);histAdd(Object.assign({act:"Schlüssel zurück",note:`von ${x.an}`},recInfo(m,id,r)))}return renderRec()}
+  if(a==="zadd"){const raw=($("#zs-stand").value||"").trim().replace(/\s/g,"").replace(/\.(?=\d{3}(\D|$))/g,"").replace(",","."),v=parseFloat(raw),datum=$("#zs-datum").value||today(),w=$("#zs-wechsel").checked;
+    const h=$("#zsHint");if(!isFinite(v)){if(h){h.textContent="Bitte einen Zählerstand eingeben.";h.style.color="var(--z4)"}return}
+    const last=zLast(r);if(last&&!w&&datum>=last.datum&&v<num(last.stand)&&!confirm(`Der neue Stand (${v.toLocaleString("de-DE")}) ist kleiner als der letzte (${num(last.stand).toLocaleString("de-DE")}).\n\nTrotzdem speichern? Bei einem neuen Zähler bitte „Zählerwechsel“ ankreuzen.`))return;
+    r.staende=(r.staende||[]).concat({id:"z"+rid(),datum,stand:v,wechsel:w||undefined,at:Date.now()});cTouch(m,id);
+    histEdit("rec:"+m+":"+id,recInfo(m,id,r),"Zählerstand");return renderRec()}
+  if(a==="zdel"){if(!confirm("Diese Ablesung löschen?"))return;r.staende=(r.staende||[]).filter(s=>s.id!==b.dataset.id);cTouch(m,id);histEdit("rec:"+m+":"+id,recInfo(m,id,r),"Zählerstand gelöscht");return renderRec()}
   if(a==="kdoc"){const x=(r.ausgaben||[]).find(z=>z.id===b.dataset.id);if(!x)return;return outDoc([await keyModel(r,x)],`Schlüsselquittung ${r.nr||""} ${x.an}`,"pdf")}
 }
 function recInput(e){
   const t=e.target;if(!recDlg)return;
   if(t.id==="rdFoto"&&e.type==="change"){recAddFotos([...t.files]);return}
-  if(t.dataset.rf){const {m,id}=recDlg,r=C[m].map.get(id);if(!r)return;let v=t.value;if(r[t.dataset.rf]===v)return;
+  if(t.dataset.rf){const {m,id}=recDlg,r=C[m].map.get(id);if(!r)return;let v=t.value;
+    if(r[t.dataset.rf]===v){/* Vertrag: berechnete Fristen nach Abschluss der Eingabe neu anzeigen */
+      if(e.type==="change"&&m==="vertraege"&&["ende","kfrist","beginn"].includes(t.dataset.rf)){const k=t.dataset.rf;renderRec();const n=$("#rf-"+k);if(n)try{n.focus()}catch(_){}}
+      return}
     const old=r[t.dataset.rf];r[t.dataset.rf]=v;
     {const fl=MODS[m].fields.find(f=>f.k===t.dataset.rf);histEdit("rec:"+m+":"+id,recInfo(m,id,r),fl?fl.l:t.dataset.rf,recDlg.isNew?"angelegt":"geändert")}
     if(m==="auftraege"&&t.dataset.rf==="status")addLog(r,`Status: ${A_STATUS[old]?.[0]||old||"–"} → ${A_STATUS[v]?.[0]||v}`);
     if(m==="auftraege"&&t.dataset.rf==="zust"&&e.type==="change")addLog(r,`Zuständig: ${v||"–"}`);
     cTouch(m,id);
-    if(t.tagName==="SELECT"&&(t.dataset.rf==="lieg"||t.dataset.rf==="status"))renderRec();
+    if(t.tagName==="SELECT"&&(t.dataset.rf==="lieg"||t.dataset.rf==="status"||t.dataset.rf==="verl"))renderRec();
     else if(t.dataset.rf==="titel"||t.dataset.rf==="bez"){const h=$("#rdT");if(h)h.textContent=MODS[m].title(r)||MODS[m].single}
     return}
   recReady();
@@ -2764,9 +2887,16 @@ function parseMail(raw){
   if(g&&g.index>0)desc=desc.slice(0,g.index).trim();
   desc=desc.replace(/^\s*(hallo|guten (morgen|tag|abend)|moin|liebe[rs]?\s|sehr geehrte[rs]?)[^\n]*\n+/i,"").trim();
   if(!subj){const line=(desc.split("\n").find(x=>x.trim())||"").trim(),first=(line.match(/^.*?[.!?](?=\s|$)/)||[line])[0];subj=first.length>90?first.slice(0,87)+"…":first}
-  const full=subj+"\n"+body,prio=guessPrio(full);
-  return {titel:subj,gemeldet:[name,mail?`(${mail})`:""].filter(Boolean).join(" ")||"",erstellt:parseDateDe((blk&&blk.h.date)||"")||today(),
-    text:desc.slice(0,3000),raw:t.slice(0,20000),lieg:guessLieg(full),kat:guessKat(full),prio,ort:guessOrt(body||full),frist:addDays(PRIO_FRIST[prio]||14),headers:!!blk};
+  const full=subj+"\n"+body;let prio=guessPrio(full),ort=guessOrt(body||full),gemeldet=[name,mail?`(${mail})`:""].filter(Boolean).join(" ")||"";
+  /* Meldung aus dem Störmelde-QR (melden.html): feste Felder statt Raten */
+  if(/Störungsmeldung über QR-Code/i.test(t)){const sf=k=>{const m=new RegExp("^[ \\t>]*"+k+":[ \\t]*(.*)$","mi").exec(t);const v=m?m[1].trim():"";return v==="–"?"":v};
+    if(sf("Ort im Gebäude"))ort=sf("Ort im Gebäude");
+    const wer=sf("Gemeldet von");if(wer)gemeldet=wer+(mail?` (${mail})`:"");
+    prio=/^dringend/i.test(sf("Dringlichkeit"))?"dringend":guessPrio(desc.split(/Beschreibung:/i)[1]||"")==="dringend"?"dringend":"normal";
+    const bm=/^[ \t>]*Beschreibung:[ \t]*\n([\s\S]*)$/mi.exec(desc);if(bm)desc=bm[1].replace(/^[ \t>]+/gm,"").trim();
+    subj=subj.replace(/^DRINGEND – /,"")}
+  return {titel:subj,gemeldet,erstellt:parseDateDe((blk&&blk.h.date)||"")||today(),
+    text:desc.slice(0,3000),raw:t.slice(0,20000),lieg:guessLieg(full),kat:guessKat(full),prio,ort,frist:addDays(PRIO_FRIST[prio]||14),headers:!!blk};
 }
 let mailImp=null;
 function openMailImp(){mailImp={raw:"",p:null,f:null};$("#imp").hidden=false;renderMailImp();setTimeout(()=>{const t=$("#miRaw");if(t)t.focus()},30)}
@@ -2928,6 +3058,24 @@ function icsFor(r){
   return ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//FMS//Termine//DE","BEGIN:VEVENT",`UID:${(r.uid||rid())}@cafm`,`DTSTAMP:${stamp}`,start,end,`SUMMARY:${esc2(r.titel||"Termin")}`,loc?`LOCATION:${esc2(loc)}`:"",desc?`DESCRIPTION:${esc2(desc)}`:"","END:VEVENT","END:VCALENDAR"].filter(Boolean).join("\r\n");
 }
 
+/* ---------- Alle Fristen als Kalenderdatei (.ics) mit Erinnerung ----------
+   Wartung/Prüfungen, Leitern, Aufträge, Schlüsselrückgaben, Kündigungsfristen, Termine der nächsten 13 Monate.
+   Gleiche UID je Frist: erneutes Importieren aktualisiert statt zu verdoppeln (Outlook, Apple Kalender). */
+function fristenICS(){
+  const e=v=>String(v||"").replace(/\\/g,"\\\\").replace(/\r?\n/g,"\\n").replace(/([,;])/g,"\\$1");
+  const fold=l=>{const out=[];let s=l;while(s.length>73){out.push(s.slice(0,73));s=" "+s.slice(73)}out.push(s);return out.join("\r\n")};
+  const stamp=new Date().toISOString().replace(/[-:]/g,"").replace(/\.\d+/,""),lim=addMonths(today(),13);
+  const items=agendaItems().filter(x=>x.d>=today()&&x.d<=lim);
+  const L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//FMS//Fristen//DE","CALSCALE:GREGORIAN","METHOD:PUBLISH","X-WR-CALNAME:FMS Fristen"];
+  items.forEach(x=>{const d=x.d.replace(/-/g,""),nx=(()=>{const [y,m,dd]=x.d.split("-").map(Number);return ISO(new Date(y,m-1,dd+1)).replace(/-/g,"")})();
+    const o=objs.get(x.lieg),pre=x.type==="Termin"?"P1D":x.type==="Auftrag"?"P2D":"P14D";
+    L.push("BEGIN:VEVENT",`UID:fms-${String(x.open+"-"+x.type+(x.type==="Schlüssel"?"-"+x.label:"")).replace(/[^A-Za-z0-9]+/g,"-").slice(0,90)}-${d}@fms`,`DTSTAMP:${stamp}`,`DTSTART;VALUE=DATE:${d}`,`DTEND;VALUE=DATE:${nx}`,
+      fold(`SUMMARY:${e(x.type+": "+x.label)}`),o?fold(`LOCATION:${e([o.name,o.adresse].filter(Boolean).join(", "))}`):"",fold(`DESCRIPTION:${e("Aus FMS · "+(liegName(x.lieg)||""))}`),"TRANSP:TRANSPARENT",
+      "BEGIN:VALARM","ACTION:DISPLAY",`TRIGGER:-${pre}`,fold(`DESCRIPTION:${e(x.type+": "+x.label)}`),"END:VALARM","END:VEVENT")});
+  L.push("END:VCALENDAR");return {text:L.filter(Boolean).join("\r\n"),n:items.length}}
+async function exportFristen(){const {text,n}=fristenICS();if(!n){setSave("ok","Keine Fristen in den nächsten 13 Monaten");return}
+  try{await saveFile(`FMS-Fristen ${today()}.ics`,text,"text/calendar");setSave("ok",`${n} Fristen als Kalenderdatei erstellt`)}catch(e){}}
+
 /* ---------- Begehung: Auftrag aus Mangel ---------- */
 function mangelTicket(sec,rowId){
   const o=objs.get(active),s=SECTIONS.find(x=>x.key===sec),r=o&&o.rows[sec].find(x=>x.id===rowId);if(!r)return;
@@ -2983,6 +3131,10 @@ async function recModel(m,id,r){
   if(m==="schluessel"){const au=(r.ausgaben||[]).slice().sort((a,b)=>a.datum<b.datum?1:-1);
     blocks.push({h:`Ausgaben · ${num(r.anzahl)-keyOut(r)} von ${num(r.anzahl)} verfügbar`},au.length?{table:{head:["Empfänger","Funktion / Firma","Anz.","Ausgabe","Rückgabe bis","Zurück am"],w:[.22,.22,.08,.15,.17,.16],
       rows:au.map(a=>[a.an,a.firma||"",String(a.anz||1),fmtDate(a.datum),!a.zur&&a.bis&&daysUntil(a.bis)<0?{t:fmtDate(a.bis),c:"over"}:(fmtDate(a.bis)||"–"),a.zur?fmtDate(a.zur.datum):"offen"])}}:{p:"Noch nicht ausgegeben."})}
+  if(m==="vertraege")blocks.splice(2,0,{kv2:[["Läuft aktuell bis",r.status==="beendet"?"beendet":fmtDate(vtEnde(r))||"–"],["Kündigen spätestens bis",vtKuend(r)?{t:fmtDate(vtKuend(r)),c:daysUntil(vtKuend(r))<=90?"over":"bold"}:"–"]]});
+  if(m==="zaehler"){const u=r.einheit||"",y=new Date().getFullYear(),ys=[];for(let k=y;k>=y-4;k--){const v=zYear(r,k);if(v!=null)ys.push([`Verbrauch ${k}${k===y?" bisher":""}`,`${v.toLocaleString("de-DE")} ${u}`])}
+    if(ys.length)blocks.push({h:"Verbrauch"},{kv2:ys});
+    const l=zList(r).slice().reverse();blocks.push({h:"Ablesungen"},l.length?{table:{head:["Datum","Stand","Hinweis"],w:[.25,.35,.4],align:["l","r","l"],rows:l.map(s=>[fmtDate(s.datum),`${num(s.stand).toLocaleString("de-DE")} ${u}`,s.wechsel?"Zählerwechsel":""])}}:{p:"Noch keine Ablesung."})}
   if(M.photos&&(r.fotos||[]).length)blocks.push({h:"Fotos"},{imgs:await fotoSrcs(r.fotos)});
   if(m==="auftraege"&&r.mail)blocks.push({h:"Original-E-Mail"},{note:r.mail.slice(0,4000)});
   return {title:`${M.single}${r.nr||r.inv?" "+(r.nr||r.inv):""}`,sub:M.title(r)||"",right:[stand(),liegName(r.lieg)||""].filter(Boolean),blocks};
@@ -2996,7 +3148,9 @@ const PDF_COLS={auftraege:[["Nr.",.1],["Titel",.23],["Liegenschaft",.17],["Gewer
   wartung:[["Bezeichnung",.27],["Liegenschaft",.19],["Intervall (Monate)",.12],["Zuletzt",.12],["Nächste",.13],["Dienstleister",.17]],
   anlagen:[["Inv.-Nr.",.1],["Bezeichnung",.26],["Kategorie",.14],["Liegenschaft",.2],["Standort",.18],["Status",.12]],
   schluessel:[["Nr.",.08],["Bezeichnung",.27],["Liegenschaft",.22],["Exemplare",.1],["Ausgegeben",.11],["Aufbewahrung",.22]],
-  taetig:[["Datum",.12],["Zeit",.11],["Termin",.27],["Liegenschaft",.2],["Firma / Ansprechpartner",.18],["Status",.12]]};
+  taetig:[["Datum",.12],["Zeit",.11],["Termin",.27],["Liegenschaft",.2],["Firma / Ansprechpartner",.18],["Status",.12]],
+  vertraege:[["Gegenstand",.24],["Vertragspartner",.18],["Liegenschaft",.18],["Läuft bis",.1],["Kündigen bis",.1],["Kosten pro Jahr €",.1],["Status",.1]],
+  zaehler:[["Bezeichnung",.22],["Art",.08],["Zähler-Nr.",.13],["Liegenschaft",.2],["Letzte Ablesung",.11],["Letzter Stand",.12],[`Verbrauch ${new Date().getFullYear()-1}`,.14]]};
 function listModel(m,rows){
   const M=MODS[m],spec=PDF_COLS[m],cols=spec.map(([l])=>M.csv.find(c=>c[0]===l)),st=MS[m];
   const val=(c,r)=>{const v=typeof c[1]==="function"?c[1](r):r[c[1]];return v==null?"":String(v)};
@@ -3062,8 +3216,30 @@ function taetigReportModel(month){
     {sig:{date:"",img:"",label:"Unterschrift"}}]};
 }
 
+/* Kostenübersicht eines Jahres: Auftragskosten (nach Erledigungs-, sonst Erstelldatum) und laufende Vertragskosten */
+function costYears(){const ys=new Set([new Date().getFullYear()]);tickets().forEach(([,t])=>{if(num(t.kosten)){const d=(t.abschluss&&t.abschluss.datum)||t.erstellt||"";if(/^\d{4}/.test(d))ys.add(+d.slice(0,4))}});return [...ys].sort((a,b)=>b-a)}
+function kostenModel(y){
+  const eur=v=>v.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})+" €";
+  const tk=tickets().map(([,t])=>t).filter(t=>t.status!=="storniert"&&num(t.kosten)&&String((t.abschluss&&t.abschluss.datum)||t.erstellt||"").startsWith(String(y)));
+  const ys=`${y}-01-01`,ye=`${y}-12-31`;
+  const vt=recs("vertraege").map(([,v])=>v).filter(v=>num(v.kosten)&&(!v.beginn||v.beginn<=ye)&&(v.status==="aktiv"||(vtEnde(v)&&vtEnde(v)>=ys)));
+  const by={},key=id=>id&&objs.has(id)?id:"_";
+  tk.forEach(t=>{const k=key(t.lieg);(by[k]=by[k]||{a:0,n:0,v:0}).a+=num(t.kosten);by[k].n++});
+  vt.forEach(v=>{const k=key(v.lieg);(by[k]=by[k]||{a:0,n:0,v:0}).v+=num(v.kosten)});
+  const rows=Object.entries(by).map(([k,x])=>({k,name:k==="_"?"ohne / mehrere Liegenschaften":liegName(k),...x,s:x.a+x.v})).sort((a,b)=>b.s-a.s);
+  const sum=rows.reduce((a,r)=>({a:a.a+r.a,n:a.n+r.n,v:a.v+r.v,s:a.s+r.s}),{a:0,n:0,v:0,s:0});
+  const byK={};tk.forEach(t=>{const k=t.kat||"ohne Gewerk";(byK[k]=byK[k]||{a:0,n:0}).a+=num(t.kosten);byK[k].n++});
+  return {title:"Kostenübersicht",sub:`Jahr ${y}`,right:[stand()],blocks:[
+    {kv2:[["Auftragskosten",eur(sum.a)],["Aufträge mit Kosten",String(sum.n)],["Vertragskosten (Jahreswerte)",eur(sum.v)],["Summe",{t:eur(sum.s),c:"bold"}]]},
+    {h:"Je Liegenschaft"},rows.length?{table:{head:["Liegenschaft","Aufträge","Auftragskosten","Verträge","Summe"],w:[.4,.1,.17,.16,.17],align:["l","r","r","r","r"],sz:8.4,
+      rows:[...rows.map(r=>[r.name,String(r.n),eur(r.a),eur(r.v),{t:eur(r.s),c:"bold"}]),{cells:[{t:"Summe",c:"bold"},{t:String(sum.n),c:"bold"},{t:eur(sum.a),c:"bold"},{t:eur(sum.v),c:"bold"},{t:eur(sum.s),c:"bold"}]}]}}:{p:"Keine Kosten erfasst."},
+    {h:"Aufträge je Gewerk"},Object.keys(byK).length?{table:{head:["Gewerk","Aufträge","Kosten"],w:[.6,.15,.25],align:["l","r","r"],rows:Object.entries(byK).sort((a,b)=>b[1].a-a[1].a).map(([k,x])=>[k,String(x.n),eur(x.a)])}}:{p:"Keine."},
+    {h:"Einzelne Aufträge"},tk.length?{table:{head:["Nr.","Auftrag","Liegenschaft","Erledigt","Kosten"],w:[.12,.38,.24,.12,.14],align:["l","l","l","l","r"],sz:8.2,
+      rows:tk.sort((a,b)=>String(a.nr).localeCompare(String(b.nr))).map(t=>[t.nr||"",t.titel||"",liegShort(t.lieg)||"–",fmtDate(t.abschluss?.datum)||"offen",eur(num(t.kosten))])}}:{p:"Keine."},
+    {note:"Auftragskosten zählen im Jahr der Erledigung (offene Aufträge im Jahr der Anlage). Vertragskosten: volle Jahreskosten aller Verträge, die im Jahr liefen."}]}}
+
 /* ---------- Berichte ---------- */
-const repState={lieg:"",month:today().slice(0,7)};
+const repState={lieg:"",month:today().slice(0,7),year:String(new Date().getFullYear())};
 function reportsHTML(){
   const card=(t,d,ctl,btns)=>`<div class="modcard rep"><h2>${t}</h2><p class="note">${d}</p>${ctl||""}<div class="actions">${btns}</div></div>`;
   const out=k=>`<button class="btn pri" type="button" data-mact="rep" data-r="${k}" data-k="save">PDF</button>${PRINT_OK?`<button class="btn" type="button" data-mact="rep" data-r="${k}" data-k="print">Drucken</button>`:""}`;
@@ -3072,6 +3248,7 @@ function reportsHTML(){
     ${card("Liegenschaftsbericht","Stammdaten, Mängel aus der Begehung, offene Aufträge, Prüftermine, Leitern und Tritte, Anlagen und Schlüssel einer Liegenschaft.",`<div class="fld">${liegSelect("repLieg",repState.lieg,"Liegenschaft wählen").replace('<select id="repLieg"','<select id="repLieg" data-rep="lieg"')}</div>`,out("lieg"))}
     ${card("Gesamtübersicht","Alle Liegenschaften mit offenen Aufträgen, fälligen Prüfungen und Mängeln, dazu alle überfälligen Punkte.","",out("all"))}
     ${card("Terminübersicht","Alle Termine eines Monats, nach Tag sortiert, mit Firma, Liegenschaft und Status.",`<div class="fld"><select id="repMonth" data-rep="month">${monthOpts(repState.month)}</select></div>`,out("taetig"))}
+    ${card("Kostenübersicht","Auftrags- und Vertragskosten eines Jahres je Liegenschaft und Gewerk, mit Einzelaufstellung.",`<div class="fld"><select id="repYear" data-rep="year">${costYears().map(y=>`<option${String(y)===repState.year?" selected":""}>${y}</option>`).join("")}</select></div>`,out("kosten"))}
     ${card("Listen als CSV","Für die Weiterverarbeitung in Excel.","",`${Object.entries(MODS).map(([k,M])=>`<button class="btn" type="button" data-mact="rep" data-r="csv-${k}" data-k="csv">${M.label}</button>`).join("")}`)}
    </div></section>`;
 }
@@ -3081,7 +3258,8 @@ async function runReport(r,k){
   if(r==="lieg"){if(!repState.lieg){setSave("err","Bitte zuerst eine Liegenschaft wählen");return}model=liegReportModel(repState.lieg)}
   else if(r==="all")model=allReportModel();
   else if(r==="taetig")model=termReportModel(repState.month);
-  const name=r==="lieg"?`Liegenschaftsbericht ${liegName(repState.lieg)}`:r==="all"?`Gesamtübersicht ${today()}`:`Terminübersicht ${repState.month||"gesamt"}`;
+  else if(r==="kosten")model=kostenModel(+repState.year||new Date().getFullYear());
+  const name=r==="lieg"?`Liegenschaftsbericht ${liegName(repState.lieg)}`:r==="all"?`Gesamtübersicht ${today()}`:r==="kosten"?`Kostenübersicht ${repState.year}`:`Terminübersicht ${repState.month||"gesamt"}`;
   return outDoc([model],name,k==="print"?"print":"pdf");
 }
 function liegReport(lid){

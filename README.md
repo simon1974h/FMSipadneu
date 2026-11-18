@@ -50,6 +50,23 @@ Es geht nichts verloren: Pro Eintrag gilt der zuletzt geänderte Stand. Tabellen
 - Format wählbar (62 × 29 mm Brother, 50 × 30 mm Niimbot/Phomemo u. a., eigene Größe). **PDF zum Drucken** für AirPrint-Drucker und den PC, **Als Bild** für Bluetooth-Etikettendrucker (Bild in der App des Druckers öffnen).
 - **QR scannen** oben in der App: öffnet bei Leitern direkt das Prüfbuch, sonst den Eintrag. Wichtig: in der FMS-App scannen, nicht mit der Kamera-App (die würde Safari ohne deine Daten öffnen).
 
+## Störmeldungen per QR-Aushang
+
+Kita-Personal, Gemeinde oder Gäste melden Defekte ohne App: QR-Code mit der Handy-Kamera scannen, kurz beschreiben, „E-Mail erstellen“ → die Mail geht an dich.
+
+1. Liegenschaft öffnen → **Störmelde-QR** → E-Mail-Adresse für Meldungen und die Adresse der Web-App (z. B. `https://NAME.github.io/fms/`) eintragen, optional Räume (je Zeile ein Etikett).
+2. Etiketten drucken und aushängen. Format ab 62 × 40 mm empfohlen, da der Code mehr Daten enthält.
+3. Eingehende Meldung kopieren → **Aufträge → Aus E-Mail** → Liegenschaft, Raum, Dringlichkeit und Melder werden automatisch erkannt.
+
+Voraussetzung: `melden.html` liegt mit auf GitHub Pages. Die E-Mail-Adresse steht im QR-Code – am besten eine Funktionsadresse verwenden.
+
+## Verträge, Zähler, Fristen, Kosten
+
+- **Verträge:** Wartungs-, Reinigungs- und Dienstleistungsverträge mit Laufzeit, automatischer Verlängerung und Kündigungsfrist. „Kündigen bis“ erscheint in Übersicht, Kalender und Fristen-Datei. Ist eine Frist verpasst, rechnet die App mit der verlängerten Laufzeit weiter.
+- **Zähler:** Strom, Gas, Wasser, Wärme. Stände erfassen (auch per QR-Etikett am Zähler: scannen → Stand eintippen), Verbrauch je Jahr wird berechnet, Zählerwechsel wird berücksichtigt.
+- **Fristen → Kalender** (Übersicht): alle Fristen der nächsten 13 Monate als Kalenderdatei mit Erinnerung (Prüfungen 14 Tage vorher). Auf dem iPad „In Kalender öffnen“, am PC in Outlook öffnen. Erneut importieren aktualisiert die Einträge.
+- **Kostenübersicht** (Berichte): Auftrags- und Vertragskosten eines Jahres je Liegenschaft und Gewerk als PDF.
+
 ## Bedienung
 
 - **Suchen** oben rechts (am PC auch Strg+K): findet Liegenschaften, Leitern/Tritte (z. B. Inventar-Nr.), Aufträge, Wartung, Anlagen, Schlüssel und Termine.
@@ -66,4 +83,4 @@ Der Name auf dem Home-Bildschirm wird beim Hinzufügen festgelegt und ändert si
 4. Erst wenn alles da ist, das alte CAFM-Symbol vom Home-Bildschirm löschen.
 ## Update
 
-Neue Version hochladen (Dateien ersetzen, **alle** Dateien inkl. `pdf-lib.min.js`, `qrcode.min.js` und `jsQR.min.js`). Die App holt sich das Update beim nächsten Öffnen mit Internet. Die Daten bleiben erhalten. Beim ersten Start der neuen Version werden die Daten automatisch in den größeren Gerätespeicher (IndexedDB) übernommen.
+Neue Version hochladen (Dateien ersetzen, **alle** Dateien inkl. `pdf-lib.min.js`, `qrcode.min.js`, `jsQR.min.js` und `melden.html`). Die App holt sich das Update beim nächsten Öffnen mit Internet. Die Daten bleiben erhalten. Beim ersten Start der neuen Version werden die Daten automatisch in den größeren Gerätespeicher (IndexedDB) übernommen.
