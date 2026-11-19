@@ -1,6 +1,6 @@
 # FMS – Bedienungsanleitung
 
-Stand: 18.11.2026, 14:35
+Stand: 19.11.2026, 07:45
 
 FMS ist unser Programm für Liegenschaften, Aufträge, Wartungen und Prüfungen. Es läuft auf dem iPad und am PC, auch ohne Internet. Lies zuerst „Einstieg“ und „Für alle“, danach den Teil zu deiner Rolle.
 
@@ -34,6 +34,7 @@ FMS merkt sich die Anmeldung auf dem Gerät. Wechseln: oben rechts auf deinen Na
 
 - **Auftrag** = etwas ist kaputt und wird einmal repariert (defekter Lüfter, kaputte Steckdose).
 - **Wartung / Prüfung** = kommt regelmäßig wieder (Feuerlöscher alle 2 Jahre, Leiterprüfung jährlich).
+- **Projekt** = größere Umbaumaßnahme oder Renovierung. Projekte stehen unter **Aufträge** (Nummer P-…), mit Beginn, Budget und Fortschritt.
 
 **Wer kümmert sich? – Annehmen**
 
@@ -116,6 +117,15 @@ Unter **Termine** stehen Termine und Einsätze. Ein Einsatz hat eine Mitarbeiter
 
 ## Verwaltung
 
+**Projekte anlegen**
+
+1. **Aufträge** → **+ Projekt**.
+2. Titel, Liegenschaft, Projektbeginn, geplantes Ende, Budget eintragen. Wer das Projekt leitet, nimmt es an (**Auftrag annehmen**).
+3. Den **Fortschritt** (0–100 %) und die Kosten laufend nachtragen. Notizen im Verlauf festhalten.
+4. Am Ende wie einen Auftrag **abzeichnen**. Filter **Projekte (laufend)** zeigt alle offenen Projekte.
+
+Ein bestehender Auftrag lässt sich über das Feld **Art** zum Projekt machen.
+
 **Auftrag aus einer E-Mail**
 
 1. Die ganze Mail kopieren (mit „Von“ und „Betreff“).
@@ -144,7 +154,8 @@ Unter **Termine** stehen Termine und Einsätze. Ein Einsatz hat eine Mitarbeiter
 
 **Berichte und Kalender**
 
-- **Berichte:** Liegenschaftsbericht, Gesamtübersicht, Terminübersicht, Kostenübersicht je Jahr, Listen als CSV für Excel. **Ansicht** zeigt den Bericht direkt am Bildschirm; von dort geht es weiter zu **PDF** (oder am PC **Drucken**).
+- **Berichte:** Liegenschaftsbericht, Gesamtübersicht (offene Aufträge, Projekte, fällige Prüfungen, Mängel und erledigte Aufgaben je Liegenschaft), Quartalsübersicht, Terminübersicht, Kostenübersicht je Jahr, Listen als CSV für Excel.
+- **Quartalsübersicht:** wird zu Beginn jedes Quartals automatisch als PDF erstellt und in der **Historie** abgelegt (Filter „Quartalsberichte“, Knopf **PDF öffnen**). Unter Berichte lässt sich jedes Quartal auch von Hand ansehen. **Ansicht** zeigt den Bericht direkt am Bildschirm; von dort geht es weiter zu **PDF** (oder am PC **Drucken**).
 - **Übersicht → Fristen → Kalender:** alle Fristen der nächsten 13 Monate mit Erinnerung für iPhone oder Outlook.
 
 **Löschen und Wiederherstellen**
@@ -212,6 +223,8 @@ Wichtig: Erst nach dem Abgleich sehen die anderen, was du angenommen oder erledi
 | QR-Code öffnet Safari statt FMS | Mit **QR scannen** in FMS scannen, nicht mit der Kamera-App. |
 | „Eintrag nicht gefunden“ beim Scannen | Eintrag wurde gelöscht oder ist auf diesem Gerät noch nicht da – erst abgleichen. |
 | Kamera geht nicht | Kamera-Zugriff in den Einstellungen erlauben oder **Foto des Etiketts verwenden**. |
+| Meldung „… Fotos/Unterschriften fehlen auf diesem Gerät“ | Beim Abgleichen die Datei **FMS-Abgleich.json** wählen, nicht FMS-Daten.json (die enthält keine Bilder). |
+| Zwei Personen haben denselben Auftrag gleichzeitig geändert | Kein Problem: Beim Abgleich wird feldgenau zusammengeführt. Nur wenn beide **dasselbe Feld** geändert haben, gilt die zuletzt gespeicherte Änderung. |
 | Etwas versehentlich gelöscht | Verwaltung: **Historie** → **Wiederherstellen**. |
 | Welche Version habe ich? | Steht auf der Übersicht oben („Version …“). |
 
